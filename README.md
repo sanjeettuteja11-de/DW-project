@@ -18,13 +18,14 @@ The full plan is in [`docs/IPL_DW_Project_Document.docx`](docs/IPL_DW_Project_Do
 | 2. Cleaning | Code done (E4–E6). Seed mapping tables in `mappings/` to be confirmed against the real data |
 | 3. Warehouse design and load | Code done: DDL, dimensions, facts, gates G1–G9 (E7–E9, E11) |
 | 4. Transformation and SCD2 | Code done: phase index, SCD Type 2 profile, drift table, sensitivity (E10) |
-| 5. Insights | To do: `notebooks/03_insights` (analysis views already in `sql/views.sql`) |
-| 6. Machine learning | ML feature table done (`ml_features.csv`); models and notebook to do |
-| 7. Dashboard | To do (reads `data/export/`) |
+| 5. Insights | Code done: `src/analysis.py` + `notebooks/03_insights` (six section-10 questions, figures) |
+| 6. Machine learning | Code done: `src/ml.py` + `notebooks/04_ml` (baselines, LR, tree, forest, season split) |
+| 7. Dashboard | Code done: Streamlit app `dashboard/app.py` (three pages, filters, tooltips) |
 | 8. Report and presentation | To do |
 
-The pipeline has only been run on a **synthetic test fixture** so far (`tests/synthetic.py`). No
-numbers in this repository are real IPL results yet.
+Everything has only been run on a **synthetic test fixture** so far (`tests/synthetic.py`). No
+numbers in this repository are real IPL results yet, and the "Finding" cells in the notebooks are
+still to be written from the real data.
 
 ## Quick start
 
@@ -38,7 +39,16 @@ pip install -r requirements.txt
 # 2. Run the whole ETL; provenance goes to logs/extraction_log.csv
 python -m src.pipeline --source-url "<kaggle dataset url>" --dataset-version "<version>"
 
-# 3. Run the tests (use the synthetic fixture, not your data)
+# 3. Analysis (Phase 5) and models (Phase 6): tables and figures in data/export/analysis and data/export/ml
+python -m src.analysis
+python -m src.ml
+
+# 4. Dashboard (Phase 7)
+streamlit run dashboard/app.py
+
+# 5. Notebooks: open notebooks/01-04 in Jupyter / VS Code and "Run All"
+
+# Tests (use the synthetic fixture, not your data)
 python -m pytest -q
 ```
 
@@ -63,6 +73,8 @@ than 2008–2024, pass `--expected-franchises N`.
 | E10 SCD Type 2 player phase profile | `src/scd2.py` | `dim_player_phase_profile`, drift table |
 | E11 Validation gates G1–G9 | `src/validate.py` | `logs/validation_report.csv`, `logs/g4_exceptions.csv` |
 | E12 Export for dashboard and ML | `src/export.py`, `src/features.py` | `data/export/*.csv` |
+| Phase 5 insights | `src/analysis.py` | `data/export/analysis/` (tables + figures) |
+| Phase 6 models | `src/ml.py` | `data/export/ml/` (metrics, CV, importances, upsets, tree) |
 
 Everything is orchestrated by `src/pipeline.py`. Each run rebuilds `db/ipl_dw.sqlite` from the raw
 files, so the pipeline is re-runnable and deterministic.
@@ -104,12 +116,13 @@ data/raw/        matches.csv, deliveries.csv (untouched; not committed)
 data/staging/  data/clean/  data/export/
 db/              ipl_dw.sqlite (generated)
 sql/             ddl.sql, views.sql
-src/             extract, profiling, clean, transform, load, validate, scd2, features, export, pipeline
+src/             extract, profiling, clean, transform, load, validate, scd2, features, export,
+                 pipeline, analysis, ml, charts
 mappings/        hand-maintained canonical mapping tables (teams, venues, cities, players)
-notebooks/       01_profiling, 02_cleaning, 03_insights, 04_ml (to do)
+notebooks/       01_profiling, 02_cleaning, 03_insights, 04_ml (build_notebooks.py regenerates them)
 logs/            extraction, cleaning, validation logs (generated)
 docs/            project document, decision log, data dictionary
-dashboard/       dashboard files (to do)
+dashboard/       Streamlit dashboard (app.py)
 tests/           synthetic fixture and tests
 ```
 

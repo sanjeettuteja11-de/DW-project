@@ -5,6 +5,7 @@ DROP VIEW IF EXISTS v_team_phase_profile;
 DROP VIEW IF EXISTS v_venue_profile;
 DROP VIEW IF EXISTS v_player_drift;
 DROP VIEW IF EXISTS v_player_phase_profile;
+DROP VIEW IF EXISTS v_match_phase;
 
 -- League run rate and wickets by season and phase (regular innings only).
 CREATE VIEW v_league_phase_rates AS
@@ -76,3 +77,18 @@ WHERE NOT EXISTS (
     SELECT 1 FROM v_player_phase_profile c
     WHERE c.player = a.player AND c.role_type = a.role_type
       AND c.valid_from_season > a.valid_to_season AND c.valid_from_season < b.valid_from_season);
+
+-- Match x batting franchise x phase totals (regular innings); small enough for dashboard filtering.
+CREATE VIEW v_match_phase AS
+SELECT m.source_match_id, se.year AS season, v.canonical_name AS venue, t.franchise_id,
+       t.canonical_name AS team, f.inning, ph.phase_name, ph.phase_key,
+       SUM(f.total_runs) AS runs, SUM(f.is_legal_for_bowler) AS legal_balls, SUM(f.is_wicket) AS wickets,
+       SUM(f.is_boundary) AS boundaries, SUM(f.is_dot) AS dots
+FROM fact_delivery f
+JOIN dim_match m ON m.match_key = f.match_key
+JOIN dim_season se ON se.season_key = f.season_key
+JOIN dim_venue v ON v.venue_key = m.venue_key
+JOIN dim_team t ON t.team_key = f.batting_team_key
+JOIN dim_phase ph ON ph.phase_key = f.phase_key
+GROUP BY m.source_match_id, se.year, v.canonical_name, t.franchise_id, t.canonical_name, f.inning,
+         ph.phase_name, ph.phase_key;
