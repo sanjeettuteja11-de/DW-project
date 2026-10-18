@@ -43,8 +43,8 @@ Run `python -m src.pipeline` first. This notebook reads the logs written by step
         code('profile = pd.read_csv(LOGS / "profiling_report.csv")\nprofile'),
         md("## Section 6: expected data-quality issues, confirmed or not"),
         code('pd.read_csv(LOGS / "data_quality_findings.csv")'),
-        md("""**Findings (write after running on the downloaded data):** for each issue, state whether it
-was confirmed, the evidence count, and any issue not anticipated in section 6."""),
+        md("""**Findings:** 8 of the 10 expected issues were confirmed on the real data; the discussion is in
+`IPL_DW_Project.ipynb`, sections 1.1 and 2.1."""),
     ],
     "02_cleaning.ipynb": [
         md("""# 02 Cleaning and warehouse load (Phases 2-3, deliverables D3, D7, D9)"""),
@@ -78,27 +78,27 @@ Answers the six questions of section 10. Charts are also saved to `data/export/a
         code('res["q1_drift_moves"]'),
         md("Three worked examples (largest rise of the new phase's index):"),
         code('res["q1_worked_examples"]'),
-        md("**Finding:** _write after running on the real data._"),
+        md("**Finding:** written up in `IPL_DW_Project.ipynb`, section 6 (insights)."),
         md("## Q2 How do league phase run rates change by season?"),
         code('display(Image(FIGS / "q2_league_phase_rates.png"))\nres["q2_league_phase_rates"]'),
-        md("**Finding:**"),
+        md("**Finding:** written up in `IPL_DW_Project.ipynb`, section 6 (insights)."),
         md("## Q3 Team Powerplay and Death profiles"),
         code('display(Image(FIGS / "q3_team_powerplay_heatmap.png"))\n'
              'display(Image(FIGS / "q3_team_death_heatmap.png"))'),
-        md("**Finding:**"),
+        md("**Finding:** written up in `IPL_DW_Project.ipynb`, section 6 (insights)."),
         md("## Q4 Which venues favour which phase and innings?"),
         code('if (FIGS / "q4_venues.png").exists():\n    display(Image(FIGS / "q4_venues.png"))\n'
              'res["q4_venue_profile"]'),
-        md("**Finding:**"),
+        md("**Finding:** written up in `IPL_DW_Project.ipynb`, section 6 (insights)."),
         md("""## Q5 Does the toss decision relate to winning?
 Chi-square test of independence, decision (bat/field) x toss winner won (yes/no). A p-value below
 0.05 would indicate an association; it does not show that the decision causes the result."""),
         code('display(res["q5_toss_overall"])\nres["q5_toss_by_venue"]'),
-        md("**Finding:**"),
+        md("**Finding:** written up in `IPL_DW_Project.ipynb`, section 6 (insights)."),
         md("## Q6 How strongly does Powerplay performance relate to the result?"),
         code('display(Image(FIGS / "q6_powerplay_win_rate.png"))\n'
              'display(res["q6_powerplay_correlation"])\nres["q6_powerplay_win_rate"]'),
-        md("**Finding:**"),
+        md("**Finding:** written up in `IPL_DW_Project.ipynb`, section 6 (insights)."),
     ],
     "04_ml.ipynb": [
         md("""# 04 Machine learning (Phase 6, deliverable D12)
@@ -116,13 +116,12 @@ Powerplays. Chronological split by season; the test seasons are scored once.""")
              '               values=["accuracy", "f1", "roc_auc"]).round(3)'),
         code('display(Image(FIGS / "model_comparison.png"))'),
         md("## Interpretation"),
-        code('display(Image(FIGS / "decision_tree_model_A.png"))'),
+        code('display(Image(FIGS / "decision_tree_model_A.png"))\ndisplay(Image(FIGS / "decision_tree_model_B.png"))'),
         code('imp = res["feature_importance"]\n'
              'imp.pivot_table(index="feature", columns=["feature_set", "model"], values="value").round(3)'),
         md("## Error analysis: confident wrong predictions (upsets)"),
         code('res["upsets"]'),
-        md("""**Findings:** compare each model with both baselines. T20 results are high-variance, so a
-modest margin over the baselines is an expected, legitimate result; report it as obtained."""),
+        md("""**Findings:** written up in `IPL_DW_Project.ipynb`, section 7 (results and interpretation)."""),
     ],
 }
 

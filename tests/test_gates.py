@@ -35,6 +35,21 @@ def test_g5_too_many_legal_balls(db_copy):
     assert status(db_copy, "G5") == "FAIL"
 
 
+def test_g5_seven_ball_over_is_an_explained_exception(db_copy, tmp_path):
+    # Umpire miscount: one extra legal, run-less delivery at the end of a full over (D-20).
+    mk, inn, ov = db_copy.execute("""SELECT match_key, inning, over FROM fact_delivery
+                                     WHERE is_super_over_innings = 0 GROUP BY 1, 2, 3
+                                     HAVING SUM(is_legal_for_bowler) = 6 LIMIT 1""").fetchone()
+    db_copy.execute("""INSERT INTO fact_delivery SELECT match_key, season_key, inning, delivery_seq + 1000,
+                       batting_team_key, bowling_team_key, batter_key, bowler_key, non_striker_key,
+                       NULL, NULL, phase_key, over, 7, 0, 0, 0, 'none', 0, 'none', 0, 1, 1, 0, 1
+                       FROM fact_delivery WHERE match_key = ? AND inning = ? AND over = ? LIMIT 1""",
+                    (mk, inn, ov))
+    assert status(db_copy, "G5", logs=tmp_path) == "PASS"
+    import pandas as pd
+    assert len(pd.read_csv(tmp_path / "g5_exceptions.csv")) == 1
+
+
 def test_g7_winner_not_a_participant(db_copy):
     db_copy.execute("""UPDATE fact_match_summary SET winner_key = (
                            SELECT team_key FROM dim_team WHERE team_key NOT IN (

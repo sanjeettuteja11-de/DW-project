@@ -18,7 +18,7 @@ DESCRIPTIONS = {
     "G2": "Grain: zero duplicates on (match, inning, delivery_seq)",
     "G3": "total_runs = batsman_runs + extra_runs on every delivery",
     "G4": "Completed regular matches: target_runs = first-innings total + 1 (exceptions listed)",
-    "G5": "Regular innings <= 120 legal balls; Super Over innings <= 6",
+    "G5": "Regular innings <= 120 legal balls; Super Over innings <= 6 (7-ball overs listed as exceptions)",
     "G6": "No raw team/venue/player string unmapped; distinct franchises = expected",
     "G7": "Winner is team1, team2 or an explicit non-result category",
     "G8": "SCD2 integrity: no overlapping spells; exactly one current row per player and role",
@@ -127,12 +127,27 @@ def g4(conn, ctx) -> GateResult:
 
 
 def g5(conn, ctx) -> GateResult:
-    n = _scalar(conn, """
-        SELECT COUNT(*) FROM (
-            SELECT is_super_over_innings AS so, SUM(is_legal_for_bowler) AS legal
-            FROM fact_delivery GROUP BY match_key, inning)
-        WHERE (so = 0 AND legal > 120) OR (so = 1 AND legal > 6)""")
-    return _result("G5", n, f"{n} innings over the legal-ball limit")
+    # An over with 7 legal balls is a real umpire miscount and is recorded as bowled (D-20):
+    # it raises that innings' limit by one ball and is listed in logs/g5_exceptions.csv.
+    # An over with 8+ legal balls, or an innings over its limit without such overs, fails.
+    overs = pd.read_sql("""
+        SELECT m.source_match_id, f.match_key, f.inning, f.over, f.is_super_over_innings AS so,
+               SUM(f.is_legal_for_bowler) AS legal
+        FROM fact_delivery f JOIN dim_match m USING (match_key)
+        GROUP BY f.match_key, f.inning, f.over""", conn)
+    seven = overs[overs.legal == 7]
+    out = ctx.get("logs")
+    if out is not None:
+        seven.assign(explanation="umpire miscount: 7 legal balls in the over").drop(
+            columns="match_key").to_csv(Path(out) / "g5_exceptions.csv", index=False)
+    inn = overs.groupby(["match_key", "inning", "so"], as_index=False).agg(
+        legal=("legal", "sum"), extra=("legal", lambda s: int((s == 7).sum())),
+        worst_over=("legal", "max"))
+    limit = inn.so.map({0: 120, 1: 6}) + inn.extra
+    n = int(((inn.legal > limit) | (inn.worst_over > 7)).sum())
+    over_limit = int((inn.legal > inn.so.map({0: 120, 1: 6})).sum())
+    return _result("G5", n, f"{n} innings over the legal-ball limit unexplained; {len(seven)} seven-ball "
+                            f"overs listed ({over_limit} innings reach 121; see logs/g5_exceptions.csv)")
 
 
 def g6(conn, ctx) -> GateResult:

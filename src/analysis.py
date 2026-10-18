@@ -168,15 +168,29 @@ def fig_team_heatmap(profile: pd.DataFrame, phase: str, path: Path) -> None:
     charts.save(fig, path)
 
 
+# Display-only short names for very long official venue names (charts only).
+SHORT_VENUE = {
+    "Bharat Ratna Shri Atal Bihari Vajpayee Ekana Cricket Stadium": "Ekana Cricket Stadium",
+    "Dr. Y.S. Rajasekhara Reddy ACA-VDCA Cricket Stadium": "ACA-VDCA Stadium",
+    "Himachal Pradesh Cricket Association Stadium": "HPCA Stadium",
+    "Punjab Cricket Association IS Bindra Stadium": "PCA IS Bindra Stadium",
+    "Maharashtra Cricket Association Stadium": "MCA Stadium",
+}
+
+
 def fig_venues(venues: pd.DataFrame, path: Path, top: int = 15) -> None:
     v = venues.head(top).iloc[::-1]
+    labels = [f"{SHORT_VENUE.get(name, name)}, {city}" if city else SHORT_VENUE.get(name, name)
+              for name, city in zip(v.venue, v.city.fillna(""))]
     fig, ax = charts.plt.subplots(figsize=(8, 0.35 * len(v) + 1.4))
-    ax.barh(v.venue, v.avg_first_innings, color=charts.BLUE, height=0.7)
+    ax.barh(labels, v.avg_first_innings, color=charts.BLUE, height=0.7)
     ax.grid(axis="y", visible=False)
+    ax.set_xlim(0, v.avg_first_innings.max() * 1.15)
     for y, (val, n) in enumerate(zip(v.avg_first_innings, v.matches)):
         ax.text(val, y, f" {val:.0f} ({n})", va="center", color=charts.TEXT_2, fontsize=8)
-    ax.set_title("Average first-innings score by venue (matches)")
-    ax.set_xlabel("Runs")
+    fig.suptitle("Average first-innings score by venue", x=0.01, ha="left",
+                 fontsize=12, fontweight="bold", color=charts.TEXT)
+    ax.set_xlabel("Runs (matches played in brackets)")
     charts.save(fig, path)
 
 
@@ -184,10 +198,11 @@ def fig_powerplay(grouped: pd.DataFrame, path: Path) -> None:
     fig, ax = charts.plt.subplots(figsize=(8, 4.2))
     x = np.arange(len(grouped))
     ax.bar(x, grouped.bat_first_win_pct.fillna(0), color=charts.BLUE, width=0.7)
-    ax.axhline(50, color=charts.TEXT_2, linewidth=1, linestyle="--")
+    ax.axhline(50, color=charts.TEXT_2, linewidth=1, linestyle="--", zorder=1)
     for i, (pct, n) in enumerate(zip(grouped.bat_first_win_pct, grouped.matches)):
         if n:
-            ax.text(i, pct, f"{pct:.0f}%\nn={n}", ha="center", va="bottom", color=charts.TEXT_2, fontsize=8)
+            ax.text(i, pct + 1, f"{pct:.0f}%\nn={n}", ha="center", va="bottom", color=charts.TEXT_2,
+                    fontsize=8, zorder=3, bbox=dict(facecolor=charts.SURFACE, edgecolor="none", pad=1))
     ax.set_xticks(x, grouped.pp_rr_diff_band.astype(str))
     ax.set_ylim(0, 110)
     ax.grid(axis="x", visible=False)
