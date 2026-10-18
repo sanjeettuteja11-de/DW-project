@@ -75,6 +75,8 @@ def build(paths: Paths) -> dict[str, pd.DataFrame]:
 
         team = _q(conn, """SELECT team_key, franchise_id, canonical_name AS team_name, valid_from_season,
                                   valid_to_season, is_current FROM dim_team""")
+        player = _q(conn, "SELECT player_key, canonical_name AS player FROM dim_player ORDER BY player")
+        roles = pd.DataFrame({"role_type": ["batting", "bowling"]})
 
         matches = _q(conn, """
             SELECT s.match_key, m.source_match_id, m.match_date, s.season_key, s.venue_key,
@@ -169,11 +171,17 @@ def build(paths: Paths) -> dict[str, pd.DataFrame]:
     importance["model_label"] = importance.model.map(MODEL_LABELS)
     importance["abs_value"] = importance.value.abs()
 
+    feature_set = pd.DataFrame({"feature_set": ["A", "B"],
+                                "prediction_point": ["A: after the 1st-innings Powerplay", "B: after both Powerplays"]})
+    model = pd.DataFrame({"model": list(MODEL_LABELS), "model_label": list(MODEL_LABELS.values())})
+    model["is_baseline"] = model.model.str.startswith("baseline").astype(int)
+
     return {
         "Season": season, "Phase": phase, "Venue": venue, "Franchise": franchise, "Team": team,
+        "Player": player, "Role": roles,
         "Matches": matches, "TeamMatches": team_matches, "InningsPhase": innings_phase,
         "PlayerSeasonPhase": player_season_phase, "PhaseSpells": spells, "PhaseChanges": drift,
-        "ModelMetrics": metrics, "TestPredictions": preds, "FeatureImportance": importance,
+        "FeatureSet": feature_set, "Model": model, "ModelMetrics": metrics, "TestPredictions": preds, "FeatureImportance": importance,
     }
 
 

@@ -1,0 +1,689 @@
+{
+ "raw": {
+  "matches_rows": 1095,
+  "matches_cols": 20,
+  "deliveries_rows": 260920,
+  "deliveries_cols": 17,
+  "matches_mb": 0.23,
+  "deliveries_mb": 27.0,
+  "sha_matches": "8a0394246d2a76b44526565f2245d8f4feff91babe57ab16676a2c3d67aa0846",
+  "sha_deliveries": "142236ea52950795dab266d4aa392c7645bd1a0db4704f0b8058afd96e24e2c2",
+  "team_strings": 19,
+  "venue_strings": 58,
+  "season_text_rows": 178,
+  "na_method": 1074,
+  "na_city": 51,
+  "wides": 8380,
+  "noballs": 1069,
+  "blank_extras": 246795,
+  "first_date": "2008-04-18",
+  "last_date": "2024-05-26"
+ },
+ "source": {
+  "url": "https://www.kaggle.com/datasets/patrickb1912/ipl-complete-dataset-20082020",
+  "title": "IPL Complete Dataset (2008-2024)",
+  "owner": "Prateek Bhardwaj",
+  "version": "3",
+  "updated": "8 June 2024",
+  "download_date": "18 October 2026",
+  "licence": "Open Database License (database) / Database Contents License (contents)",
+  "origin": "Cricsheet (cricsheet.org), Open Data Commons Attribution License"
+ },
+ "warehouse": {
+  "dim_season": 17,
+  "dim_phase": 3,
+  "dim_team": 18,
+  "dim_venue": 36,
+  "dim_player": 741,
+  "dim_match": 1095,
+  "fact_delivery": 260920,
+  "fact_match_summary": 1095,
+  "fact_player_season_phase": 13695,
+  "dim_player_phase_profile": 1187,
+  "franchises": 15
+ },
+ "matches": {
+  "completed": 1076,
+  "tie": 14,
+  "no_result": 5,
+  "super_over": 14,
+  "dl": 21,
+  "ml_eligible": 1055,
+  "excluded_ml": 40
+ },
+ "cleaning": {
+  "rules": 54,
+  "cells": 1755214,
+  "by_rule": {
+   "city canonical name": 70,
+   "derive is_dl_applied; drop raw column": 21,
+   "fill city from venue mapping": 51,
+   "null token -> NULL": 995461,
+   "season label -> year of match date": 178,
+   "shift 0-based overs to 1-20": 260920,
+   "structural null -> 'none'": 494765,
+   "team canonical name": 3221,
+   "venue canonical name (manual)": 367,
+   "venue canonical name (normalised key)": 160
+  },
+  "fuzzy_pairs": 30,
+  "seven_ball_overs": 29,
+  "g4_exceptions": 21
+ },
+ "gates": [
+  {
+   "gate": "G1",
+   "description": "Referential integrity: every foreign key in every fact resolves to a dimension row",
+   "status": "PASS",
+   "detail": "28 foreign keys checked"
+  },
+  {
+   "gate": "G2",
+   "description": "Grain: zero duplicates on (match, inning, delivery_seq)",
+   "status": "PASS",
+   "detail": "0 duplicated grain keys"
+  },
+  {
+   "gate": "G3",
+   "description": "total_runs = batsman_runs + extra_runs on every delivery",
+   "status": "PASS",
+   "detail": "0 deliveries where total_runs != batsman_runs + extra_runs"
+  },
+  {
+   "gate": "G4",
+   "description": "Completed regular matches: target_runs = first-innings total + 1 (exceptions listed)",
+   "status": "PASS",
+   "detail": "1090 matches checked; 21 listed exceptions (shortened/D-L); 0 unexplained (see logs/g4_exceptions.csv)"
+  },
+  {
+   "gate": "G5",
+   "description": "Regular innings <= 120 legal balls; Super Over innings <= 6 (7-ball overs listed as exceptions)",
+   "status": "PASS",
+   "detail": "0 innings over the legal-ball limit unexplained; 29 seven-ball overs listed (19 innings reach 121; see logs/g5_exceptions.csv)"
+  },
+  {
+   "gate": "G6",
+   "description": "No raw team/venue/player string unmapped; distinct franchises = expected",
+   "status": "PASS",
+   "detail": "0 unmapped raw strings (0 rows); 15 franchises (expected 15)"
+  },
+  {
+   "gate": "G7",
+   "description": "Winner is team1, team2 or an explicit non-result category",
+   "status": "PASS",
+   "detail": "0 matches with an invalid winner"
+  },
+  {
+   "gate": "G8",
+   "description": "SCD2 integrity: no overlapping spells; exactly one current row per player and role",
+   "status": "PASS",
+   "detail": "0 overlapping spell pairs; 0 player-roles without exactly one current row; 0 rows with inconsistent is_current"
+  },
+  {
+   "gate": "G9",
+   "description": "Row-count reconciliation across raw, staging and warehouse",
+   "status": "PASS",
+   "detail": "raw deliveries=260920; stg_deliveries=260920; clean_deliveries=260920; fact_delivery=260920; raw matches=1095; stg_matches=1095; dim_match=1095; fact_match_summary=1095; deliveries for unknown matches=0"
+  }
+ ],
+ "i1": {
+  "Powerplay": {
+   "y2008": 7.7,
+   "y2022": 7.82,
+   "y2024": 9.46,
+   "chg_08_24": 22.8,
+   "chg_22_24": 20.9
+  },
+  "Middle": {
+   "y2008": 7.99,
+   "y2022": 8.08,
+   "y2024": 8.83,
+   "chg_08_24": 10.5,
+   "chg_22_24": 9.3
+  },
+  "Death": {
+   "y2008": 9.95,
+   "y2022": 10.45,
+   "y2024": 11.21,
+   "chg_08_24": 12.7,
+   "chg_22_24": 7.2
+  },
+  "pp_boundary": {
+   "y2008": 19.7,
+   "y2024": 24.9
+  },
+  "pp_dot": {
+   "y2008": 49.7,
+   "y2024": 42.0
+  },
+  "avg_inn1": {
+   "2008": 161.0,
+   "2022": 171.1,
+   "2023": 183.5,
+   "2024": 189.6
+  }
+ },
+ "i2": {
+  "matches": 1055,
+  "r": 0.35,
+  "higher_wins": 65.5,
+  "bands": [
+   {
+    "pp_rr_diff_band": "< -3",
+    "matches": 146,
+    "bat_first_win_pct": 19.2
+   },
+   {
+    "pp_rr_diff_band": "-3 to -1.5",
+    "matches": 183,
+    "bat_first_win_pct": 31.1
+   },
+   {
+    "pp_rr_diff_band": "-1.5 to -0.5",
+    "matches": 170,
+    "bat_first_win_pct": 42.9
+   },
+   {
+    "pp_rr_diff_band": "-0.5 to 0.5",
+    "matches": 159,
+    "bat_first_win_pct": 47.8
+   },
+   {
+    "pp_rr_diff_band": "0.5 to 1.5",
+    "matches": 149,
+    "bat_first_win_pct": 52.3
+   },
+   {
+    "pp_rr_diff_band": "1.5 to 3",
+    "matches": 154,
+    "bat_first_win_pct": 63.0
+   },
+   {
+    "pp_rr_diff_band": "> 3",
+    "matches": 94,
+    "bat_first_win_pct": 81.9
+   }
+  ]
+ },
+ "i3": {
+  "overall": 50.8,
+  "field_pct": 53.9,
+  "field_won": 377,
+  "field_n": 700,
+  "bat_pct": 45.4,
+  "bat_won": 177,
+  "bat_n": 390,
+  "chi2": 6.86,
+  "p": 0.009,
+  "field_share_pre2014_min": 35.0,
+  "field_share_pre2014_max": 66.0,
+  "field_share_2016_2019_min": 81.0,
+  "field_share_2024": 73.0,
+  "venues_tested": 15,
+  "venue_min_p": 0.051,
+  "venue_min_n": 27,
+  "venue_max_n": 118
+ },
+ "i4": {
+  "batting_60": {
+   "pool": 188,
+   "changed": 115,
+   "changes": 269,
+   "pct": 61.0
+  },
+  "bowling_60": {
+   "pool": 241,
+   "changed": 134,
+   "changes": 271,
+   "pct": 56.0
+  },
+  "batting_120": {
+   "pool": 132,
+   "changed": 83,
+   "changes": 175,
+   "pct": 63.0
+  },
+  "bowling_120": {
+   "pool": 150,
+   "changed": 81,
+   "changes": 166,
+   "pct": 54.0
+  },
+  "bat_middle_moves": 241,
+  "bat_moves": 269,
+  "bowl_ppdeath_moves": 127,
+  "bowl_moves": 271,
+  "bat_middle_pct": 90.0,
+  "bowl_ppdeath_pct": 47.0,
+  "moves": [
+   {
+    "role_type": "batting",
+    "from_phase": "Death",
+    "to_phase": "Middle",
+    "n": 64
+   },
+   {
+    "role_type": "batting",
+    "from_phase": "Death",
+    "to_phase": "Powerplay",
+    "n": 16
+   },
+   {
+    "role_type": "batting",
+    "from_phase": "Middle",
+    "to_phase": "Death",
+    "n": 62
+   },
+   {
+    "role_type": "batting",
+    "from_phase": "Middle",
+    "to_phase": "Powerplay",
+    "n": 59
+   },
+   {
+    "role_type": "batting",
+    "from_phase": "Powerplay",
+    "to_phase": "Death",
+    "n": 12
+   },
+   {
+    "role_type": "batting",
+    "from_phase": "Powerplay",
+    "to_phase": "Middle",
+    "n": 56
+   },
+   {
+    "role_type": "bowling",
+    "from_phase": "Death",
+    "to_phase": "Middle",
+    "n": 40
+   },
+   {
+    "role_type": "bowling",
+    "from_phase": "Death",
+    "to_phase": "Powerplay",
+    "n": 64
+   },
+   {
+    "role_type": "bowling",
+    "from_phase": "Middle",
+    "to_phase": "Death",
+    "n": 37
+   },
+   {
+    "role_type": "bowling",
+    "from_phase": "Middle",
+    "to_phase": "Powerplay",
+    "n": 31
+   },
+   {
+    "role_type": "bowling",
+    "from_phase": "Powerplay",
+    "to_phase": "Death",
+    "n": 63
+   },
+   {
+    "role_type": "bowling",
+    "from_phase": "Powerplay",
+    "to_phase": "Middle",
+    "n": 36
+   }
+  ]
+ },
+ "venues": [
+  {
+   "venue": "Himachal Pradesh Cricket Association Stadium",
+   "city": "Dharamsala",
+   "matches": 13,
+   "avg_first_innings": 183.8,
+   "bat_first_win_rate": 0.615
+  },
+  {
+   "venue": "Brabourne Stadium",
+   "city": "Mumbai",
+   "matches": 27,
+   "avg_first_innings": 178.5,
+   "bat_first_win_rate": 0.519
+  },
+  {
+   "venue": "M Chinnaswamy Stadium",
+   "city": "Bengaluru",
+   "matches": 90,
+   "avg_first_innings": 174.2,
+   "bat_first_win_rate": 0.456
+  },
+  {
+   "venue": "Narendra Modi Stadium",
+   "city": "Ahmedabad",
+   "matches": 35,
+   "avg_first_innings": 171.0,
+   "bat_first_win_rate": 0.429
+  },
+  {
+   "venue": "Arun Jaitley Stadium",
+   "city": "Delhi",
+   "matches": 88,
+   "avg_first_innings": 170.4,
+   "bat_first_win_rate": 0.489
+  },
+  {
+   "venue": "Wankhede Stadium",
+   "city": "Mumbai",
+   "matches": 117,
+   "avg_first_innings": 170.3,
+   "bat_first_win_rate": 0.453
+  },
+  {
+   "venue": "Bharat Ratna Shri Atal Bihari Vajpayee Ekana Cricket Stadium",
+   "city": "Lucknow",
+   "matches": 13,
+   "avg_first_innings": 168.5,
+   "bat_first_win_rate": 0.538
+  },
+  {
+   "venue": "Punjab Cricket Association IS Bindra Stadium",
+   "city": "Chandigarh",
+   "matches": 61,
+   "avg_first_innings": 168.3,
+   "bat_first_win_rate": 0.443
+  }
+ ],
+ "ml": {
+  "split": [
+   {
+    "part": "train",
+    "seasons": "2008 2009 2010 2011 2012 2013 2014 2015 2016 2017 2018 2019 2020 2021",
+    "matches": 839
+   },
+   {
+    "part": "val",
+    "seasons": "2022",
+    "matches": 74
+   },
+   {
+    "part": "test",
+    "seasons": "2023 2024",
+    "matches": 142
+   }
+  ],
+  "test": [
+   {
+    "feature_set": "A",
+    "model": "baseline_majority",
+    "params": "",
+    "accuracy": 0.479,
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1": 0.0,
+    "roc_auc": 0.5,
+    "tn": 68,
+    "fp": 0,
+    "fn": 74,
+    "tp": 0
+   },
+   {
+    "feature_set": "A",
+    "model": "baseline_pp_rate_above_train_median",
+    "params": "",
+    "accuracy": 0.592,
+    "precision": 0.576,
+    "recall": 0.824,
+    "f1": 0.678,
+    "roc_auc": 0.666,
+    "tn": 23,
+    "fp": 45,
+    "fn": 13,
+    "tp": 61
+   },
+   {
+    "feature_set": "A",
+    "model": "logistic_regression",
+    "params": "{'C': 0.1}",
+    "accuracy": 0.606,
+    "precision": 0.622,
+    "recall": 0.622,
+    "f1": 0.622,
+    "roc_auc": 0.663,
+    "tn": 40,
+    "fp": 28,
+    "fn": 28,
+    "tp": 46
+   },
+   {
+    "feature_set": "A",
+    "model": "decision_tree",
+    "params": "{'max_depth': 5, 'min_samples_leaf': 20}",
+    "accuracy": 0.563,
+    "precision": 0.611,
+    "recall": 0.446,
+    "f1": 0.516,
+    "roc_auc": 0.585,
+    "tn": 47,
+    "fp": 21,
+    "fn": 41,
+    "tp": 33
+   },
+   {
+    "feature_set": "A",
+    "model": "random_forest",
+    "params": "{'max_depth': 3, 'min_samples_leaf': 5}",
+    "accuracy": 0.592,
+    "precision": 0.618,
+    "recall": 0.568,
+    "f1": 0.592,
+    "roc_auc": 0.656,
+    "tn": 42,
+    "fp": 26,
+    "fn": 32,
+    "tp": 42
+   },
+   {
+    "feature_set": "B",
+    "model": "baseline_majority",
+    "params": "",
+    "accuracy": 0.479,
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1": 0.0,
+    "roc_auc": 0.5,
+    "tn": 68,
+    "fp": 0,
+    "fn": 74,
+    "tp": 0
+   },
+   {
+    "feature_set": "B",
+    "model": "baseline_higher_pp_rate_wins",
+    "params": "",
+    "accuracy": 0.669,
+    "precision": 0.702,
+    "recall": 0.635,
+    "f1": 0.667,
+    "roc_auc": 0.729,
+    "tn": 48,
+    "fp": 20,
+    "fn": 27,
+    "tp": 47
+   },
+   {
+    "feature_set": "B",
+    "model": "logistic_regression",
+    "params": "{'C': 0.1}",
+    "accuracy": 0.683,
+    "precision": 0.723,
+    "recall": 0.635,
+    "f1": 0.676,
+    "roc_auc": 0.732,
+    "tn": 50,
+    "fp": 18,
+    "fn": 27,
+    "tp": 47
+   },
+   {
+    "feature_set": "B",
+    "model": "decision_tree",
+    "params": "{'max_depth': 3, 'min_samples_leaf': 20}",
+    "accuracy": 0.655,
+    "precision": 0.705,
+    "recall": 0.581,
+    "f1": 0.637,
+    "roc_auc": 0.685,
+    "tn": 50,
+    "fp": 18,
+    "fn": 31,
+    "tp": 43
+   },
+   {
+    "feature_set": "B",
+    "model": "random_forest",
+    "params": "{'max_depth': 5, 'min_samples_leaf': 5}",
+    "accuracy": 0.662,
+    "precision": 0.71,
+    "recall": 0.595,
+    "f1": 0.647,
+    "roc_auc": 0.751,
+    "tn": 50,
+    "fp": 18,
+    "fn": 30,
+    "tp": 44
+   }
+  ],
+  "cv_best": [
+   {
+    "feature_set": "A",
+    "model": "decision_tree",
+    "cv_auc": 0.6,
+    "folds": 14
+   },
+   {
+    "feature_set": "A",
+    "model": "logistic_regression",
+    "cv_auc": 0.64,
+    "folds": 14
+   },
+   {
+    "feature_set": "A",
+    "model": "random_forest",
+    "cv_auc": 0.643,
+    "folds": 14
+   },
+   {
+    "feature_set": "B",
+    "model": "decision_tree",
+    "cv_auc": 0.685,
+    "folds": 14
+   },
+   {
+    "feature_set": "B",
+    "model": "logistic_regression",
+    "cv_auc": 0.751,
+    "folds": 14
+   },
+   {
+    "feature_set": "B",
+    "model": "random_forest",
+    "cv_auc": 0.73,
+    "folds": 14
+   }
+  ],
+  "lr_b_by_season": {
+   "2023": 66.2,
+   "2024": 70.4
+  },
+  "bat_first_win_train": 44.7,
+  "bat_first_win_test": 52.1,
+  "rf_b_top": [
+   {
+    "feature": "inn2_pp_wickets",
+    "value": 0.233
+   },
+   {
+    "feature": "inn1_pp_runs",
+    "value": 0.096
+   },
+   {
+    "feature": "inn2_pp_runs",
+    "value": 0.084
+   },
+   {
+    "feature": "inn1_pp_run_rate",
+    "value": 0.081
+   },
+   {
+    "feature": "inn2_pp_run_rate",
+    "value": 0.079
+   }
+  ],
+  "chase_win_le1_wkt": 70.7,
+  "chase_win_ge2_wkt": 36.1,
+  "upsets": [
+   {
+    "feature_set": "A",
+    "model": "decision_tree",
+    "n": 21
+   },
+   {
+    "feature_set": "A",
+    "model": "logistic_regression",
+    "n": 7
+   },
+   {
+    "feature_set": "A",
+    "model": "random_forest",
+    "n": 5
+   },
+   {
+    "feature_set": "B",
+    "model": "decision_tree",
+    "n": 27
+   },
+   {
+    "feature_set": "B",
+    "model": "logistic_regression",
+    "n": 18
+   },
+   {
+    "feature_set": "B",
+    "model": "random_forest",
+    "n": 10
+   }
+  ]
+ },
+ "teams_win_pct": {
+  "GT": 62.2,
+  "CSK": 58.2,
+  "LSG": 55.8,
+  "MI": 55.2,
+  "KKR": 52.2,
+  "RR": 51.1,
+  "RPS": 50.0,
+  "RCB": 48.8,
+  "SRH": 48.4,
+  "DEL": 46.0,
+  "PBKS": 45.5,
+  "GL": 43.3,
+  "KTK": 42.9,
+  "DCH": 38.7,
+  "PWI": 26.7
+ },
+ "pbi_tables": {
+  "FeatureImportance": 75,
+  "FeatureSet": 2,
+  "Franchise": 15,
+  "InningsPhase": 6443,
+  "Matches": 1095,
+  "Model": 6,
+  "ModelMetrics": 10,
+  "Phase": 3,
+  "PhaseChanges": 540,
+  "PhaseSpells": 1187,
+  "Player": 741,
+  "PlayerSeasonPhase": 13695,
+  "Role": 2,
+  "Season": 17,
+  "Team": 18,
+  "TeamMatches": 2190,
+  "TestPredictions": 1420,
+  "Venue": 36
+ }
+}

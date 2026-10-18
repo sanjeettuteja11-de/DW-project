@@ -16,3 +16,8 @@ __pycache__/
 .ipynb_checkpoints/
 .venv/
 .DS_Store
+
+# Submission build outputs that are too large or are local renders
+submission/*.zip
+submission/*.pdf
+submission/*.html

@@ -11,21 +11,37 @@ The full plan is in [`docs/IPL_DW_Project_Document.docx`](docs/IPL_DW_Project_Do
 
 ## Status
 
+All phases have been run on the **real Kaggle data** (IPL Complete Dataset 2008-2024, version 3:
+1,095 matches, 260,920 deliveries). All nine validation gates pass, and the submission notebook
+`notebooks/IPL_DW_Project.ipynb` runs end to end without errors (about 2.5 minutes).
+
 | Phase | Status |
 |-------|--------|
-| 0. Setup and scoping | Done: repository, environment, structure |
-| 1. Extraction and profiling | Code done (E1–E3). **Waiting for the real dataset** in `data/raw/` |
-| 2. Cleaning | Code done (E4–E6). Seed mapping tables in `mappings/` to be confirmed against the real data |
-| 3. Warehouse design and load | Code done: DDL, dimensions, facts, gates G1–G9 (E7–E9, E11) |
-| 4. Transformation and SCD2 | Code done: phase index, SCD Type 2 profile, drift table, sensitivity (E10) |
-| 5. Insights | Code done: `src/analysis.py` + `notebooks/03_insights` (six section-10 questions, figures) |
-| 6. Machine learning | Code done: `src/ml.py` + `notebooks/04_ml` (baselines, LR, tree, forest, season split) |
-| 7. Dashboard | Code done: Streamlit app `dashboard/app.py` (three pages, filters, tooltips) |
-| 8. Report and presentation | To do |
+| 0-4. Setup, extraction, cleaning, warehouse, SCD2 | Done on real data; G1-G9 pass |
+| 5. Insights | Done: `src/analysis.py` (figures in `data/export/analysis/figures/`) |
+| 6. Machine learning | Done: `src/ml.py` (Model B logistic regression 68.3% accuracy, ROC-AUC 0.73 on 2023-24) |
+| 7. Dashboard | Power BI workbook `src/powerbi.py` + build guide; Streamlit prototype `dashboard/app.py` |
+| 8. Report and presentation | Done: `submission/` (report, cleaning log, build guide, contribution statement) and the viva deck |
 
-Everything has only been run on a **synthetic test fixture** so far (`tests/synthetic.py`). No
-numbers in this repository are real IPL results yet, and the "Finding" cells in the notebooks are
-still to be written from the real data.
+## Submission package
+
+| # | Guideline item | File |
+|---|----------------|------|
+| 1 | Jupyter notebook | `notebooks/IPL_DW_Project.ipynb` (+ HTML copy and code zip in `submission/`) |
+| 2 | Cleaning & transformation log | `submission/02_Cleaning_and_Transformation_Log.docx` |
+| 3 | Power BI (.pbix) + PDF | build from `data/export/powerbi/IPL_PowerBI_Data.xlsx` with `submission/03b_PowerBI_Build_Guide.docx` |
+| 4 | Written report | `submission/04_Project_Report.docx` (ER diagram: `docs/er_diagram_keys.*`) |
+| 5 | Presentation deck | Slides artifact "IPL Data Warehouse Viva Deck" (download as .pptx) |
+| 6 | Raw and cleaned datasets | `python reports/package_datasets.py` -> `submission/06_Datasets.zip` |
+| 7 | Contribution statement | `submission/07_Contribution_Statement.docx` |
+
+Rebuild every written deliverable from the pipeline outputs (no number is typed by hand):
+
+```bash
+python reports/facts.py && python reports/dashboard_previews.py
+node reports/build_report.js && node reports/build_cleaning_log.js
+node reports/build_powerbi_guide.js && node reports/build_contribution.js
+```
 
 ## Quick start
 
@@ -42,6 +58,8 @@ python -m src.pipeline --source-url "<kaggle dataset url>" --dataset-version "<v
 # 3. Analysis (Phase 5) and models (Phase 6): tables and figures in data/export/analysis and data/export/ml
 python -m src.analysis
 python -m src.ml
+python -m src.powerbi                         # Power BI workbook
+python -m src.dictionary && python -m src.erd  # data dictionary and ER diagram
 
 # 4. Dashboard (Phase 7)
 streamlit run dashboard/app.py
