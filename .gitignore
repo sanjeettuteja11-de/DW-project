@@ -21,3 +21,5 @@ __pycache__/
 submission/*.zip
 submission/*.pdf
 submission/*.html
+submission/*.ipynb
+submission/*.xlsx
