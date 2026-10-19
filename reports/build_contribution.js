@@ -10,9 +10,9 @@ const children = [
   p("IPL Phase-Performance and Style-Drift Data Warehouse  |  Data Wrangling group project, B.Tech CSE (Data Science), Semester V, NMIMS MPSTME", { align: AlignmentType.CENTER, after: 240 }),
   table([
     ["Member", "Roll no.", "Primary responsibility"],
-    ["Sanjeet Singh Tuteja", "L076", "[e.g. Data extraction, ETL pipeline and star-schema design (warehouse load, SCD Type 2 profile, validation gates)]"],
-    ["[Member 2 name]", "[Roll no.]", "[e.g. Data cleaning and cleaning log, insights analysis and the Power BI dashboard]"],
-    ["[Member 3 name]", "[Roll no.]", "[e.g. Machine-learning models and evaluation, written report and viva presentation]"],
+    ["Sanjeet Singh Tuteja", "L076", "Data extraction, cleaning and the cleaning log, warehouse loading and the validation gates (guidelines 4.1, 4.2, 4.4)"],
+    ["[Member 2 name]", "[Roll no.]", "Data transformation and feature engineering (aggregate facts, phase index, SCD Type 2 player profile) and the insights analysis (4.3, 4.5)"],
+    ["[Member 3 name]", "[Roll no.]", "Machine-learning models and evaluation, the Power BI dashboard, and the written report (4.6, 4.7)"],
   ], [2600, 1300, W - 3900], { size: 22 }),
   p("", { after: 200 }),
   p("We confirm that the statement above is an accurate description of each member's primary responsibility, and that all three members reviewed the final notebook, report and dashboard.", { after: 480 }),
