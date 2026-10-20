@@ -24,6 +24,145 @@ def code(text):
     return nbf.v4.new_code_cell(text.strip("\n"))
 
 
+REPO = HERE.parent
+
+# Every file of the project's code, in the order the pipeline uses it: (path, step, what it does).
+CODE_FILES = [
+    ("requirements.txt", "setup", "Python packages and the versions the project was run with."),
+    ("src/__init__.py", "setup", "Marks `src/` as a Python package."),
+    ("src/config.py", "setup", "Constants (the three phases, the 60-ball qualification threshold, null tokens) "
+                               "and the folder layout."),
+    ("src/extract.py", "E1–E2", "Registers the raw files (SHA-256, row and column counts) and stages every "
+                                "column as text with its source row number."),
+    ("src/profiling.py", "E3", "Profiles every column and tests the ten expected data-quality issues."),
+    ("mappings/teams.csv", "E4–E6", "Canonical team and franchise names for every raw team string."),
+    ("mappings/venues.csv", "E4–E6", "Manual venue merges that the normalised-name key cannot find."),
+    ("mappings/cities.csv", "E4–E6", "Canonical city names."),
+    ("mappings/players.csv", "E4–E6", "Reviewed player merges (empty: every fuzzy match was a different person)."),
+    ("src/clean.py", "E4–E6", "Cleaning rules: null tokens, season labels, 0-based overs, team / venue / city / "
+                              "player canonicalisation, fuzzy-match review list, cleaning log."),
+    ("src/transform.py", "E7–E9", "Builds the dimensions and facts: phase of every ball, legal-ball and "
+                                  "faced-ball flags, match summary, player-season-phase shares and index."),
+    ("src/scd2.py", "E10", "SCD Type 2 dimension of each player's primary phase, the drift table and the "
+                           "threshold sensitivity check."),
+    ("sql/ddl.sql", "E7–E10", "Warehouse schema: staging, clean, dimension and fact tables with keys."),
+    ("sql/views.sql", "E7–E10", "Analysis views on top of the star schema."),
+    ("src/load.py", "E7–E10", "SQLite connection, schema creation and table loading."),
+    ("src/validate.py", "E11", "Validation gates G1–G9; the pipeline stops if any gate fails."),
+    ("src/features.py", "E12", "Match-level feature table for the models."),
+    ("src/dictionary.py", "E12", "Writes the data dictionary for every exported column."),
+    ("src/export.py", "E12", "Exports dimensions, facts and views to CSV."),
+    ("src/pipeline.py", "E1–E12", "Runs every step in order, with the gates between steps."),
+    ("src/charts.py", "insights", "Shared chart style."),
+    ("src/analysis.py", "insights", "The six insight questions: tables and charts."),
+    ("src/ml.py", "ML", "Time-based split, baselines, logistic regression, decision tree, random forest, "
+                        "cross-validation, test metrics, feature importance."),
+    ("src/powerbi.py", "Power BI", "Writes the Power BI workbook (18 tables)."),
+    ("src/erd.py", "docs", "Draws the ER diagram of the warehouse."),
+    ("dashboard/app.py", "prototype", "First version of the dashboard in Streamlit, made before the Power BI one; "
+                                      "kept because the tests in Appendix A check that its pages render."),
+]
+TEST_FILES = ["pytest.ini", "tests/__init__.py", "tests/conftest.py", "tests/synthetic.py", "tests/test_clean.py",
+              "tests/test_scd2.py", "tests/test_gates.py", "tests/test_pipeline.py", "tests/test_analysis_ml.py"]
+
+
+def file_cell(rel):
+    """A cell that holds one project file and writes it to disk when run."""
+    text = (REPO / rel).read_text(encoding="utf-8")
+    if not text:  # %%writefile needs a body; empty files (package markers) are created directly
+        return nbf.v4.new_code_cell(f'from pathlib import Path\nPath("{rel}").write_text("")  # empty file')
+    return nbf.v4.new_code_cell(f"%%writefile {rel}\n" + text)
+
+
+def lines_of(rel):
+    return len((REPO / rel).read_text(encoding="utf-8").splitlines())
+
+
+def code_section():
+    total = sum(lines_of(f) for f, _, _ in CODE_FILES if f.endswith((".py", ".sql")))
+    rows = "\n".join(f"| {step} | `{f}` | {lines_of(f)} | {what} |" for f, step, what in CODE_FILES)
+    out = [md(f"""
+## 0. The project code
+
+This section is the complete code of the project ({total:,} lines of Python and SQL, plus four small mapping
+tables), one cell per file, in the order the pipeline uses it. Each cell starts with `%%writefile`, so running it
+writes that file to disk; the import cell after this section then loads the package. To run the project on
+another machine, install the packages in `requirements.txt` (Python 3.11 or newer), put this notebook in an empty
+folder and run all cells: section 0 writes the code, section 1 downloads the data, and the rest runs it.
+
+| Step | File | Lines | What it does |
+|---|---|---|---|
+{rows}
+"""),
+           code(r'''
+import os
+from pathlib import Path
+
+REPO = Path.cwd().resolve().parent if Path.cwd().name == "notebooks" else Path.cwd().resolve()
+os.chdir(REPO)
+for folder in ("src", "sql", "mappings", "tests", "dashboard"):
+    os.makedirs(folder, exist_ok=True)
+print("Writing the project code into", REPO)
+''')]
+    for i, (f, step, what) in enumerate(CODE_FILES, 1):
+        out.append(md(f"### 0.{i} `{f}` ({step})\n{what}"))
+        out.append(file_cell(f))
+    return out
+
+
+def tests_section():
+    out = [md("""
+## Appendix A. Automated tests
+
+Thirty-eight tests check the cleaning rules, the SCD Type 2 logic, every validation gate (each gate is shown
+failing on deliberately broken data), the full pipeline on a small synthetic dataset, and the analysis and model
+code. The cells below write the test files and then run them with pytest.
+""")]
+    for f in TEST_FILES:
+        out.append(file_cell(f))
+    out.append(code(r'''
+import subprocess, sys
+result = subprocess.run([sys.executable, "-m", "pytest", "-q", "--color=no", "-p", "no:cacheprovider", "tests"], cwd=REPO, capture_output=True, text=True)
+print(result.stdout[-1500:] or result.stderr[-1500:])
+assert result.returncode == 0, "a test failed"
+'''))
+    return out
+
+
+def powerbi_section():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("build_pbip", REPO / "dashboard" / "build_pbip.py")
+    b = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(b)
+    rel = "\n".join(f"{ft}[{fc}]  *-->1  {tt}[{tc}]" + ("" if active else "   (inactive)")
+                     for ft, fc, tt, tc, active in b.RELATIONSHIPS)
+    blocks = []
+    for table in b.TABLE_ORDER:
+        ms = [m for m in b.MEASURES if m[0] == table]
+        if not ms:
+            continue
+        blocks.append(f"-- {table}")
+        for _, name, expr, fmt, _folder in ms:
+            blocks.append(f"{name} = {expr}" + (f"    -- format {fmt}" if fmt else ""))
+        blocks.append("")
+    dax = "\n".join(blocks).rstrip()
+    return [md(f"""
+## Appendix B. Power BI model: relationships and DAX measures
+
+The Power BI project (`dashboard/IPL_Scorebook/`, opened with Power BI Desktop) loads the 18 tables written in
+section 8 (the `Model` table is called `MLModel` there). These are its relationships (many side → one side;
+inactive ones avoid ambiguous filter paths) and its {len(b.MEASURES)} DAX measures.
+
+```text
+{rel}
+```
+
+```dax
+{dax}
+```
+""")]
+
+
 cells = [
     md(r"""
 # IPL Phase-Performance and Style-Drift Data Warehouse
@@ -44,10 +183,13 @@ The project asks two questions:
 2. **Powerplay signal.** How much of a match result can be predicted from the first six overs of
    each innings?
 
-This notebook runs end to end from the two raw CSV files. The heavy lifting lives in the `src/`
-package so the same code is used by the notebook, the command-line pipeline and the tests. Every
-stage is shown here with its outputs.
+This notebook runs end to end from the two raw CSV files. **Section 0 contains every line of the
+project's code**, one cell per file; each cell writes its file into the `src/` package (or `sql/`,
+`mappings/`), so the same code is used by this notebook, the command-line pipeline and the tests.
+Sections 1–8 then run that code and show the output of every stage. Appendix A holds the automated
+tests and runs them; Appendix B lists the Power BI model's relationships and DAX measures.
 """),
+    *code_section(),
     code(r"""
 import os, sys, sqlite3, zipfile, urllib.request
 from pathlib import Path
@@ -349,7 +491,14 @@ changes that cricket followers already know about, which gives us some confidenc
 The wrangled data is loaded into **SQLite** (`db/ipl_dw.sqlite`) as a star schema with three fact
 tables at different grains and seven dimensions, plus analysis views and CSV exports.
 """),
-    code(r"""display(Image(REPO / "docs" / "er_diagram_keys.png", width=900))"""),
+    code(r"""
+from src import dictionary, erd
+if not (REPO / "docs" / "er_diagram_keys.png").exists():  # first run in a new folder: draw it
+    (REPO / "docs").mkdir(exist_ok=True)
+    dictionary.main()  # data dictionary parsed from sql/ddl.sql
+    erd.run()          # ER diagram drawn from the data dictionary
+display(Image(REPO / "docs" / "er_diagram_keys.png", width=900))
+"""),
     code(r"""
 tables = pd.read_sql("SELECT name, type FROM sqlite_master WHERE type IN ('table', 'view') "
                      "AND name NOT LIKE 'sqlite_%' ORDER BY type, name", con)
@@ -572,7 +721,8 @@ ups.groupby(["feature_set", "model"]).size()
 The dashboard reads one workbook, `data/export/powerbi/IPL_PowerBI_Data.xlsx` (one Excel table per
 sheet, also written as CSVs), containing the star-schema tables with names denormalised for easy
 slicing, plus the model outputs (test predictions vs actual, metrics and feature importance). The
-build steps, relationships and DAX measures are in `docs/PowerBI_Build_Guide.docx`.
+Power BI project built on it is `dashboard/IPL_Scorebook/`; its relationships and DAX measures are
+listed in Appendix B.
 """),
     code(r"""
 pbi = powerbi.run(P)
@@ -613,6 +763,8 @@ Player rule; and while the two Powerplays predict the winner about two-thirds of
 that signal is captured by a one-line rule, with Powerplay wickets in the chase mattering more
 than Powerplay runs.
 """),
+    *tests_section(),
+    *powerbi_section(),
     code(r"""con.close()
 print("Notebook finished without errors.")"""),
 ]
