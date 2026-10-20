@@ -1,0 +1,37 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-US
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation PBI_QueryOrder = ["DataFolder", "Season", "Phase", "Venue", "Franchise", "Team", "Player", "Role", "Matches", "TeamMatches", "InningsPhase", "PlayerSeasonPhase", "PhaseSpells", "PhaseChanges", "FeatureSet", "MLModel", "ModelMetrics", "TestPredictions", "FeatureImportance"]
+
+annotation __PBI_TimeIntelligenceEnabled = 0
+
+annotation PBIDesktopVersion = 2.137.952.0 (24.10)
+
+annotation PBI_ProTooling = ["DevMode"]
+
+ref table Season
+ref table Phase
+ref table Venue
+ref table Franchise
+ref table Team
+ref table Player
+ref table Role
+ref table Matches
+ref table TeamMatches
+ref table InningsPhase
+ref table PlayerSeasonPhase
+ref table PhaseSpells
+ref table PhaseChanges
+ref table FeatureSet
+ref table MLModel
+ref table ModelMetrics
+ref table TestPredictions
+ref table FeatureImportance
+
+ref cultureInfo en-US
+

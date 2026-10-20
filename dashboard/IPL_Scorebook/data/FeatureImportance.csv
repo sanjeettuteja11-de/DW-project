@@ -1,0 +1,76 @@
+feature_set,model,feature,value,model_label,abs_value,feature_label
+A,logistic_regression,inn1_pp_runs,0.1599,Logistic regression,0.1599,Batting-first PP runs
+A,logistic_regression,inn1_pp_wickets,-0.3338,Logistic regression,0.3338,Batting-first PP wickets
+A,logistic_regression,inn1_pp_run_rate,0.1647,Logistic regression,0.1647,Batting-first PP run rate
+A,logistic_regression,inn1_pp_boundaries,-0.0045,Logistic regression,0.0045,Batting-first PP boundaries
+A,logistic_regression,inn1_pp_dot_pct,-0.0154,Logistic regression,0.0154,Batting-first PP dot %
+A,logistic_regression,toss_decision_bat,0.0284,Logistic regression,0.0284,Toss winner chose to bat
+A,logistic_regression,toss_winner_bat_first,0.0284,Logistic regression,0.0284,Toss winner batted first
+A,logistic_regression,venue_avg_first_innings_prior,-0.1006,Logistic regression,0.1006,Ground's average first innings
+A,logistic_regression,bat_first_prev_season_win_pct,0.0079,Logistic regression,0.0079,Batting side's last-season win %
+A,logistic_regression,chase_prev_season_win_pct,-0.0752,Logistic regression,0.0752,Chasing side's last-season win %
+A,decision_tree,inn1_pp_runs,0.1583,Decision tree,0.1583,Batting-first PP runs
+A,decision_tree,inn1_pp_wickets,0.1786,Decision tree,0.1786,Batting-first PP wickets
+A,decision_tree,inn1_pp_run_rate,0.1974,Decision tree,0.1974,Batting-first PP run rate
+A,decision_tree,inn1_pp_boundaries,0.0081,Decision tree,0.0081,Batting-first PP boundaries
+A,decision_tree,inn1_pp_dot_pct,0.2977,Decision tree,0.2977,Batting-first PP dot %
+A,decision_tree,toss_decision_bat,0.0,Decision tree,0.0,Toss winner chose to bat
+A,decision_tree,toss_winner_bat_first,0.0,Decision tree,0.0,Toss winner batted first
+A,decision_tree,venue_avg_first_innings_prior,0.0,Decision tree,0.0,Ground's average first innings
+A,decision_tree,bat_first_prev_season_win_pct,0.0694,Decision tree,0.0694,Batting side's last-season win %
+A,decision_tree,chase_prev_season_win_pct,0.0905,Decision tree,0.0905,Chasing side's last-season win %
+A,random_forest,inn1_pp_runs,0.186,Random forest,0.186,Batting-first PP runs
+A,random_forest,inn1_pp_wickets,0.1612,Random forest,0.1612,Batting-first PP wickets
+A,random_forest,inn1_pp_run_rate,0.1736,Random forest,0.1736,Batting-first PP run rate
+A,random_forest,inn1_pp_boundaries,0.0932,Random forest,0.0932,Batting-first PP boundaries
+A,random_forest,inn1_pp_dot_pct,0.1943,Random forest,0.1943,Batting-first PP dot %
+A,random_forest,toss_decision_bat,0.0039,Random forest,0.0039,Toss winner chose to bat
+A,random_forest,toss_winner_bat_first,0.0038,Random forest,0.0038,Toss winner batted first
+A,random_forest,venue_avg_first_innings_prior,0.0796,Random forest,0.0796,Ground's average first innings
+A,random_forest,bat_first_prev_season_win_pct,0.0373,Random forest,0.0373,Batting side's last-season win %
+A,random_forest,chase_prev_season_win_pct,0.067,Random forest,0.067,Chasing side's last-season win %
+B,logistic_regression,inn1_pp_runs,0.157,Logistic regression,0.157,Batting-first PP runs
+B,logistic_regression,inn1_pp_wickets,-0.3463,Logistic regression,0.3463,Batting-first PP wickets
+B,logistic_regression,inn1_pp_run_rate,0.1601,Logistic regression,0.1601,Batting-first PP run rate
+B,logistic_regression,inn1_pp_boundaries,0.0256,Logistic regression,0.0256,Batting-first PP boundaries
+B,logistic_regression,inn1_pp_dot_pct,-0.0745,Logistic regression,0.0745,Batting-first PP dot %
+B,logistic_regression,toss_decision_bat,0.0318,Logistic regression,0.0318,Toss winner chose to bat
+B,logistic_regression,toss_winner_bat_first,0.0318,Logistic regression,0.0318,Toss winner batted first
+B,logistic_regression,venue_avg_first_innings_prior,-0.0489,Logistic regression,0.0489,Ground's average first innings
+B,logistic_regression,bat_first_prev_season_win_pct,-0.0725,Logistic regression,0.0725,Batting side's last-season win %
+B,logistic_regression,chase_prev_season_win_pct,-0.1409,Logistic regression,0.1409,Chasing side's last-season win %
+B,logistic_regression,inn2_pp_runs,-0.1268,Logistic regression,0.1268,Chasing PP runs
+B,logistic_regression,inn2_pp_wickets,0.7029,Logistic regression,0.7029,Chasing PP wickets
+B,logistic_regression,inn2_pp_run_rate,-0.1321,Logistic regression,0.1321,Chasing PP run rate
+B,logistic_regression,inn2_pp_boundaries,-0.2583,Logistic regression,0.2583,Chasing PP boundaries
+B,logistic_regression,inn2_pp_dot_pct,-0.1432,Logistic regression,0.1432,Chasing PP dot %
+B,decision_tree,inn1_pp_runs,0.0762,Decision tree,0.0762,Batting-first PP runs
+B,decision_tree,inn1_pp_wickets,0.1285,Decision tree,0.1285,Batting-first PP wickets
+B,decision_tree,inn1_pp_run_rate,0.0,Decision tree,0.0,Batting-first PP run rate
+B,decision_tree,inn1_pp_boundaries,0.0,Decision tree,0.0,Batting-first PP boundaries
+B,decision_tree,inn1_pp_dot_pct,0.0749,Decision tree,0.0749,Batting-first PP dot %
+B,decision_tree,toss_decision_bat,0.0,Decision tree,0.0,Toss winner chose to bat
+B,decision_tree,toss_winner_bat_first,0.0,Decision tree,0.0,Toss winner batted first
+B,decision_tree,venue_avg_first_innings_prior,0.0,Decision tree,0.0,Ground's average first innings
+B,decision_tree,bat_first_prev_season_win_pct,0.0,Decision tree,0.0,Batting side's last-season win %
+B,decision_tree,chase_prev_season_win_pct,0.0,Decision tree,0.0,Chasing side's last-season win %
+B,decision_tree,inn2_pp_runs,0.0,Decision tree,0.0,Chasing PP runs
+B,decision_tree,inn2_pp_wickets,0.6707,Decision tree,0.6707,Chasing PP wickets
+B,decision_tree,inn2_pp_run_rate,0.0,Decision tree,0.0,Chasing PP run rate
+B,decision_tree,inn2_pp_boundaries,0.0497,Decision tree,0.0497,Chasing PP boundaries
+B,decision_tree,inn2_pp_dot_pct,0.0,Decision tree,0.0,Chasing PP dot %
+B,random_forest,inn1_pp_runs,0.0956,Random forest,0.0956,Batting-first PP runs
+B,random_forest,inn1_pp_wickets,0.0778,Random forest,0.0778,Batting-first PP wickets
+B,random_forest,inn1_pp_run_rate,0.0806,Random forest,0.0806,Batting-first PP run rate
+B,random_forest,inn1_pp_boundaries,0.0467,Random forest,0.0467,Batting-first PP boundaries
+B,random_forest,inn1_pp_dot_pct,0.0741,Random forest,0.0741,Batting-first PP dot %
+B,random_forest,toss_decision_bat,0.005,Random forest,0.005,Toss winner chose to bat
+B,random_forest,toss_winner_bat_first,0.0036,Random forest,0.0036,Toss winner batted first
+B,random_forest,venue_avg_first_innings_prior,0.0454,Random forest,0.0454,Ground's average first innings
+B,random_forest,bat_first_prev_season_win_pct,0.0298,Random forest,0.0298,Batting side's last-season win %
+B,random_forest,chase_prev_season_win_pct,0.0338,Random forest,0.0338,Chasing side's last-season win %
+B,random_forest,inn2_pp_runs,0.0842,Random forest,0.0842,Chasing PP runs
+B,random_forest,inn2_pp_wickets,0.2326,Random forest,0.2326,Chasing PP wickets
+B,random_forest,inn2_pp_run_rate,0.0787,Random forest,0.0787,Chasing PP run rate
+B,random_forest,inn2_pp_boundaries,0.0696,Random forest,0.0696,Chasing PP boundaries
+B,random_forest,inn2_pp_dot_pct,0.0423,Random forest,0.0423,Chasing PP dot %

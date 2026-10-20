@@ -1,0 +1,58 @@
+table Venue
+	lineageTag: 61475b74-76fa-590d-a50a-8560a87d9583
+
+	column venue_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 8f1cac95-75e7-5259-a4d7-49321a0156d7
+		summarizeBy: none
+		isHidden
+		sourceColumn: venue_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column venue
+		dataType: string
+		lineageTag: 0c85a7a2-9f8a-5069-9286-60dbdf8f01c0
+		summarizeBy: none
+		sourceColumn: venue
+
+		annotation SummarizationSetBy = Automatic
+
+	column city
+		dataType: string
+		lineageTag: bf9b4894-62e7-5d4f-bb8a-01e91c888b17
+		summarizeBy: none
+		sourceColumn: city
+
+		annotation SummarizationSetBy = Automatic
+
+	column venue_short
+		dataType: string
+		lineageTag: aa48af1b-2948-5b2d-a764-07e4543a1561
+		summarizeBy: none
+		sourceColumn: venue_short
+
+		annotation SummarizationSetBy = Automatic
+
+	column country
+		dataType: string
+		lineageTag: f29ae6f8-5c1d-5b2c-a4b0-1bd65ab5bd74
+		summarizeBy: none
+		sourceColumn: country
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Venue = m
+		mode: import
+		source =
+				let
+				    Raw = if DataFolder = null or Text.Length(DataFolder) = 0 then Binary.Decompress(Binary.FromText("H4sIAAAAAAAC/41WS3PiOBC+51eouMylNxUgz6N5VF5Dhopn2Mpcptq4gwS2RMkSLPvrt/2IiWPI5gTV39et1tcPeUPa058V7WCT/4O5ctXfP5k01sHceO3s7qQLgfVaPKByCe1E6DBWPoURJVIdhu51rPCkBwO0GKFTNTD0zuF81QZKj34OZLhmVAytmq/I1Yxbv0XJLp9QyiDnMJCMOvGMTqMIpVUicJiIgWK7EjNcrnFHJMYr1O0g3/18pc0WDqPlERcw4PyNt5pqZOLTCNUBoHS5hIF/fcXEiCnaFYwxc+K70bHRTSA03kkRvPK5eHLFIosBkc3ESGHKdPFjgwk8qjQiy4ofwRtBrmFkxeiFwzuViHDNpc1EMMeY0t1b1p8wyvRvmHIqXk7DU5Z1iRmtco3FM8XxTgTD4K/ZaBi01JqpDJm4zguRQk1rKtM9g5HnJMS9dmQ152A0V+tjrILzJeavYHzS7cI4Ji1u0fJPBo8mWaHDprE6vwe3lthc6P+Ieu3te0vF6sOdSnEu+cCpZWkyWR8cZJmZqyKdfbq5PmmGCcLdtH3nc7jLM7KHGsxY+gTNvS/gIeSYTRkqjhiadJ3QP/CMes4DWjA/+F9yB+lFlhLGrKiNUL8zNJqnewUTMZRKa8y2mO5HfEB6gYm3/ghenXQNkyDHY+Q+Y0H2m0AS+6hjcOV+A50J5kouUbxgjBulY267kJOV/9MFYuKTpChmhw9DjrdAK6G2flxWZ1CelEn3brUcKu3Ua4JJS9VeF57QUpHgxMT73RbIlGJed/ERvHLvwRNJ62vzo8nL17RV1D6bt+JvvhTZfPjf4AfDF9WURd4ujlAa1e2d5yzWI85giGsSP81W701N7gX8+PUz85bbiso1M0gMpa+Gy6B0C2w6X+aqLTE6KOx9yLu5LGzdHXXB8uFpEyohrrjLl2rDE61jqQ4PBNztWINC/y+Qq8DXEKL/SjNwyJVxX2VX0W+Yv+U9NkGdFa1cFxBVvn2OoNUjeQahREkUixmvfsFNhTvUB4din2URtxPOnsL9hJTWzlvcbh7XLlG2ZqmyH8XzjdvvQejELRm7oG9ZuTqn/JKIcaL+xYicbOONHun3IfRrssX7U+JD0s5bvkoLaXqeQ2fGO8RG8nP5+UMldRI7PIiLQo/ZuykWpbGW4wJ4elaS4tYb37JXHpfwmz8s4pY8QeQFvweROoLn8v0HeVgIcY4JAAA=", BinaryEncoding.Base64), Compression.GZip) else File.Contents(DataFolder & "Venue.csv"),
+				    Source = Csv.Document(Raw, [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				    Typed = Table.TransformColumnTypes(Promoted, {{"venue_key", Int64.Type}, {"venue", type text}, {"city", type text}, {"venue_short", type text}, {"country", type text}}, "en-US")
+				in
+				    Typed
+
+	annotation PBI_ResultType = Table
+

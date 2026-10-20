@@ -1,0 +1,256 @@
+{
+  "version": "1.1.0",
+  "diagrams": [
+    {
+      "ordinal": 0,
+      "scrollPosition": {
+        "x": 0,
+        "y": 0
+      },
+      "nodes": [
+        {
+          "location": {
+            "x": 40,
+            "y": 20
+          },
+          "nodeIndex": "Season",
+          "nodeLineageTag": "95a876c7-ad8f-5aae-91f0-42f1dedd372e",
+          "size": {
+            "height": 260,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 300,
+            "y": 20
+          },
+          "nodeIndex": "Phase",
+          "nodeLineageTag": "aac2633c-3f99-56e9-bc57-d846887cce17",
+          "size": {
+            "height": 260,
+            "width": 234
+          },
+          "zIndex": 1
+        },
+        {
+          "location": {
+            "x": 560,
+            "y": 20
+          },
+          "nodeIndex": "Venue",
+          "nodeLineageTag": "61475b74-76fa-590d-a50a-8560a87d9583",
+          "size": {
+            "height": 260,
+            "width": 234
+          },
+          "zIndex": 2
+        },
+        {
+          "location": {
+            "x": 820,
+            "y": 20
+          },
+          "nodeIndex": "Franchise",
+          "nodeLineageTag": "802ef1da-fb1f-52d7-968c-b6c65f50a2d0",
+          "size": {
+            "height": 260,
+            "width": 234
+          },
+          "zIndex": 3
+        },
+        {
+          "location": {
+            "x": 1080,
+            "y": 20
+          },
+          "nodeIndex": "Team",
+          "nodeLineageTag": "cdde67b3-3791-59e4-bcd5-3005130bea18",
+          "size": {
+            "height": 260,
+            "width": 234
+          },
+          "zIndex": 4
+        },
+        {
+          "location": {
+            "x": 820,
+            "y": 640
+          },
+          "nodeIndex": "Player",
+          "nodeLineageTag": "f78ab4a2-e7f4-539f-8bc3-d75dfa24a793",
+          "size": {
+            "height": 260,
+            "width": 234
+          },
+          "zIndex": 5
+        },
+        {
+          "location": {
+            "x": 560,
+            "y": 640
+          },
+          "nodeIndex": "Role",
+          "nodeLineageTag": "2287fbd3-29ad-5af9-b6f8-928de8a1e166",
+          "size": {
+            "height": 260,
+            "width": 234
+          },
+          "zIndex": 6
+        },
+        {
+          "location": {
+            "x": 40,
+            "y": 330
+          },
+          "nodeIndex": "Matches",
+          "nodeLineageTag": "67d27681-604a-553e-81a0-807705c22e47",
+          "size": {
+            "height": 260,
+            "width": 234
+          },
+          "zIndex": 7
+        },
+        {
+          "location": {
+            "x": 300,
+            "y": 330
+          },
+          "nodeIndex": "TeamMatches",
+          "nodeLineageTag": "cb988d6e-896b-550c-88db-72235382d435",
+          "size": {
+            "height": 260,
+            "width": 234
+          },
+          "zIndex": 8
+        },
+        {
+          "location": {
+            "x": 560,
+            "y": 330
+          },
+          "nodeIndex": "InningsPhase",
+          "nodeLineageTag": "6dfeb646-c4bc-597f-85bd-201f696d3804",
+          "size": {
+            "height": 260,
+            "width": 234
+          },
+          "zIndex": 9
+        },
+        {
+          "location": {
+            "x": 820,
+            "y": 330
+          },
+          "nodeIndex": "PlayerSeasonPhase",
+          "nodeLineageTag": "3c5b38c1-6b1a-5931-b027-90658c94ee1c",
+          "size": {
+            "height": 260,
+            "width": 234
+          },
+          "zIndex": 10
+        },
+        {
+          "location": {
+            "x": 300,
+            "y": 640
+          },
+          "nodeIndex": "PhaseSpells",
+          "nodeLineageTag": "c850b510-4814-5732-a06b-4e2e10a34844",
+          "size": {
+            "height": 260,
+            "width": 234
+          },
+          "zIndex": 11
+        },
+        {
+          "location": {
+            "x": 40,
+            "y": 640
+          },
+          "nodeIndex": "PhaseChanges",
+          "nodeLineageTag": "e5d114c6-f433-55b4-a940-507886d4d838",
+          "size": {
+            "height": 260,
+            "width": 234
+          },
+          "zIndex": 12
+        },
+        {
+          "location": {
+            "x": 1080,
+            "y": 640
+          },
+          "nodeIndex": "FeatureSet",
+          "nodeLineageTag": "0ffd4bd2-eee7-5969-bbd4-4ce9c2d6adfc",
+          "size": {
+            "height": 260,
+            "width": 234
+          },
+          "zIndex": 13
+        },
+        {
+          "location": {
+            "x": 1340,
+            "y": 640
+          },
+          "nodeIndex": "MLModel",
+          "nodeLineageTag": "88c700ee-7042-512f-8a29-0b61957f1c30",
+          "size": {
+            "height": 260,
+            "width": 234
+          },
+          "zIndex": 14
+        },
+        {
+          "location": {
+            "x": 1340,
+            "y": 330
+          },
+          "nodeIndex": "ModelMetrics",
+          "nodeLineageTag": "53dbfc66-a999-56a4-9bce-646945e5e547",
+          "size": {
+            "height": 260,
+            "width": 234
+          },
+          "zIndex": 15
+        },
+        {
+          "location": {
+            "x": 1080,
+            "y": 330
+          },
+          "nodeIndex": "TestPredictions",
+          "nodeLineageTag": "23ccee60-8fcc-5ee3-9b9f-1789eda352e5",
+          "size": {
+            "height": 260,
+            "width": 234
+          },
+          "zIndex": 16
+        },
+        {
+          "location": {
+            "x": 1340,
+            "y": 20
+          },
+          "nodeIndex": "FeatureImportance",
+          "nodeLineageTag": "151e618d-aae6-5f08-960f-5ee1f86bb4fe",
+          "size": {
+            "height": 260,
+            "width": 234
+          },
+          "zIndex": 17
+        }
+      ],
+      "name": "All tables",
+      "zoomValue": 70,
+      "pinKeyFieldsToTop": true,
+      "showExtraHeaderInfo": false,
+      "hideKeyFieldsWhenCollapsed": false,
+      "tablesLocked": false
+    }
+  ],
+  "selectedDiagram": "All tables",
+  "defaultDiagram": "All tables"
+}

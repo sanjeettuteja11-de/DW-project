@@ -1,0 +1,79 @@
+table FeatureImportance
+	lineageTag: 151e618d-aae6-5f08-960f-5ee1f86bb4fe
+
+	measure 'RF Importance' = CALCULATE ( SUM ( FeatureImportance[abs_value] ), MLModel[model] = "random_forest" )
+		formatString: 0.000
+		displayFolder: Model
+		lineageTag: 47af05ab-23f8-5db3-b853-8938e6c35e02
+
+	column feature_set
+		dataType: string
+		lineageTag: b0b64c2c-c384-5cc9-82d7-52f01e5460df
+		summarizeBy: none
+		sourceColumn: feature_set
+
+		annotation SummarizationSetBy = Automatic
+
+	column model
+		dataType: string
+		lineageTag: 9ebd8927-095b-5a52-857e-25e3d9de2653
+		summarizeBy: none
+		sourceColumn: model
+
+		annotation SummarizationSetBy = Automatic
+
+	column feature
+		dataType: string
+		lineageTag: 941c5543-e9ed-5809-8da0-786ce4e0fa58
+		summarizeBy: none
+		sourceColumn: feature
+
+		annotation SummarizationSetBy = Automatic
+
+	column value
+		dataType: double
+		formatString: 0.000
+		lineageTag: a1f5ada6-86d1-517e-b11b-1a6e6825513f
+		summarizeBy: sum
+		sourceColumn: value
+
+		annotation SummarizationSetBy = Automatic
+
+	column model_label
+		dataType: string
+		lineageTag: 2cd97303-f533-5309-8c04-e064eee3ba6d
+		summarizeBy: none
+		sourceColumn: model_label
+
+		annotation SummarizationSetBy = Automatic
+
+	column abs_value
+		dataType: double
+		formatString: 0.000
+		lineageTag: bef5d808-6bb8-53fc-b415-0be99baf7512
+		summarizeBy: sum
+		sourceColumn: abs_value
+
+		annotation SummarizationSetBy = Automatic
+
+	column feature_label
+		dataType: string
+		lineageTag: c1c0b9a3-025f-5666-9b29-8689cba8769e
+		summarizeBy: none
+		sourceColumn: feature_label
+
+		annotation SummarizationSetBy = Automatic
+
+	partition FeatureImportance = m
+		mode: import
+		source =
+				let
+				    Raw = if DataFolder = null or Text.Length(DataFolder) = 0 then Binary.Decompress(Binary.FromText("H4sIAAAAAAAC/7VYwY6kNhC95yu4RLkwI2MMhmPYlXLJYRXljphuTy9KL4zA3fn9uEx3D4yrbDPKHueV/aqw/d5U9avq9GVS7ax0+mM8qnP6uiDptTtf1IK15+7FRLqXuV3Q25oF/+X39Dye+ln3h3ZSp0nNcz8OaT8MWfv21k6XYU7Zc1bUdfrnbV2yWncLNZ3W/XB6eu2nWSffviWwL0D9b3/4R+k5fWLPeZ5XBL0NOfS3veHi26nTCqoshaQ+AELYBySwN5DiZbwMx27qlf0OxkRBZLEhJ8v79kCe46jbt4O2SbJCUEkg5CQxe5NfCX49znN7VIce/mpfOg0svCITQOhvs8fcwDCoKTl8H2eV6DExW30pluWQoLV17Uxj9ml1TOxWIs1VDRfVdtfTkqA1G80pzO3b1I8TnFvGWEk9AQj9McFl/DYn3VVN3Ukt2ZIbD5H18UEmj7oaIXazOUdTtb0tuHZZky9CPoSTzP1RmdTnbtZPCwl8Onlth+/drNCU8EBkwamcEPpiNgdyPl6EnpRyzaDK06+3FYldcQMpG8Dp7gZgNsuqdBkB9CifrPGh+VoKlxVAn9px2pXO4eaqzCG2oF/gOPVd2uyZ11I6vBYkNb2lRNXsVupTMEKIaTdA+kGvW1K/UnHyoDi3KYKyLGv3aVgwQpDbVLQUDWPNCjcNgBEanLrhOP5oX0cjX+1o0GjjL7sguS1YMEqBONlKgWXGXUIAPQokK3woUOZImQD6FIjTbhVY5265FvQrEKd+V2BWi9wtGEBSgVtKVIEsr91iAfToEKHFdMhMd4RQVz41bqmDapS1e4cWDGpymyioyVy6Z2/BCE1uU3k1WUo3i8GCimziGmWyzSwkoc4muk0WZU61yRAipdrEt8ksI9tklnlk28S2ydDdFSXZ+BWlV8JNdJcs6VZcYq34oucmvkvOM2pmsSFS282+LnlHmo3Om891yUxUZMMKoYDom090yfa2OH1bvAg7QLO/Tc4EI2daCH3eEPjDECANL6kLtKF7mqAb8O1/bMk4Vb4NrXiDNsA3NgBF55z0AQhtiw44AHcHZQ7TAs5vQyv+GPHzD+LPRM7Jq835mv4ue+/Ew2TJ3T4OQMrRgxMPr9zO0IIeEw9OPFjn7LPsmFknhnJzR6Epx9hvjRymqGlP/p+nnOZnTDnNz59ymr1TDn13PlfbMd8gCSJs03khfK01D6dHXx/csZTMHaUtiPoiWZFPWbgJ4lRbTYnaLc6ClO/hpCtN+cu768g7UrK6QBr9uihJkwsNlUxKZDoB0GNywaGSVQypE0Cf1cUMlQIbDQD0G15oqDTeliHHIDLa8GKGygIZ/Aqf6UWPlCU2UpY+69s5UopCIAdtwKAB7hwpeY08QAAjbHDHSJljUziAEWbovJ6NGVYC+Z0DQNcScaJ3NfKcuxdrQdQSyboeOpQVIhcAcWPECbcKLLHfGgCkjBEnXWlPcORHBQAde/wPPwQil00bAAA=", BinaryEncoding.Base64), Compression.GZip) else File.Contents(DataFolder & "FeatureImportance.csv"),
+				    Source = Csv.Document(Raw, [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				    Typed = Table.TransformColumnTypes(Promoted, {{"feature_set", type text}, {"model", type text}, {"feature", type text}, {"value", type number}, {"model_label", type text}, {"abs_value", type number}, {"feature_label", type text}}, "en-US")
+				in
+				    Typed
+
+	annotation PBI_ResultType = Table
+

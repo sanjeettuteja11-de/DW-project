@@ -1,0 +1,7 @@
+model,model_label,is_baseline,model_short
+baseline_majority,Baseline: majority class,1,Majority class
+baseline_pp_rate_above_train_median,Baseline: PP rate above median,1,Rule: PP rate > median
+baseline_higher_pp_rate_wins,Baseline: higher PP rate wins,1,Rule: higher PP rate
+logistic_regression,Logistic regression,0,Logistic regression
+decision_tree,Decision tree,0,Decision tree
+random_forest,Random forest,0,Random forest

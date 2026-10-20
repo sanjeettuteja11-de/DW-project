@@ -1,0 +1,68 @@
+table Team
+	lineageTag: cdde67b3-3791-59e4-bcd5-3005130bea18
+
+	column team_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 6697a4af-fc99-50d7-95e1-555cb5a8717c
+		summarizeBy: none
+		isHidden
+		sourceColumn: team_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column franchise_id
+		dataType: string
+		lineageTag: 973b74ca-98cf-598b-ba3c-cb75f4499272
+		summarizeBy: none
+		sourceColumn: franchise_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column team_name
+		dataType: string
+		lineageTag: f3126112-f570-5230-bc67-08aebbf2dbbf
+		summarizeBy: none
+		sourceColumn: team_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column valid_from_season
+		dataType: int64
+		formatString: 0
+		lineageTag: 6bbff82c-a256-5ac7-878f-09736e3fe5ce
+		summarizeBy: none
+		sourceColumn: valid_from_season
+
+		annotation SummarizationSetBy = Automatic
+
+	column valid_to_season
+		dataType: double
+		lineageTag: 97f6ce93-9d02-5df9-82e3-61088055e19b
+		summarizeBy: none
+		sourceColumn: valid_to_season
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_current
+		dataType: int64
+		formatString: 0
+		lineageTag: 1ce13c5a-e917-5b84-be9e-1cbc4e6e01c7
+		summarizeBy: none
+		sourceColumn: is_current
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Team = m
+		mode: import
+		source =
+				let
+				    Raw = if DataFolder = null or Text.Length(DataFolder) = 0 then Binary.Decompress(Binary.FromText("H4sIAAAAAAAC/3WS0W7jIBBF3/MVfMBoZUiapK9xVk6EK0U4UvfNmtjUJiG4wtBV/n4Bp2lVaV+QYM7lDndwEq/1Rd7gzaJpejXKWrXg4qnBq4QP1Kqt3+xwrUeJ42DuJ2743Kuxbry10rgZhbzikPfSGFSk8u/SEq5MNwLLsjUAnTHY5jvYyqZBQ/IebSftvcoyyn5lkM3msP1dBkb3imzRylZ+KP0FrRO0+Abl+K4cJoQ+R5cnKEoo/BktOlKqwaTSMi6rpF5CcXwAxyBOBGNRvALOBfBBX9Ah4UZ1vSNCtY9GA7MGfuSBCYGRox8voUa4tKgxetC0JKNnKKsCSt9czPD3nkih0LgvP5rByx5e/PUUMtubVk3NTEbhrsOGV5BSJH/25ODNGU+fYbAsuVA2UVPxETmj6Yo5HF73sSbJK1qrhvSQqcv5pF+AyDcghhvqOBWtpYmDIRs0HerByofhXfD0P4GMAm99ZBfJfgniUIFQY+iKpC5SDF1M4cdY6AqEAIFnHF0fPki6/1sYa6jEDipvbPinwW13C1PBE7bpKRH5B4R2lc/PAgAA", BinaryEncoding.Base64), Compression.GZip) else File.Contents(DataFolder & "Team.csv"),
+				    Source = Csv.Document(Raw, [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				    Typed = Table.TransformColumnTypes(Promoted, {{"team_key", Int64.Type}, {"franchise_id", type text}, {"team_name", type text}, {"valid_from_season", Int64.Type}, {"valid_to_season", type number}, {"is_current", Int64.Type}}, "en-US")
+				in
+				    Typed
+
+	annotation PBI_ResultType = Table
+

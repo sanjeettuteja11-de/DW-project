@@ -1,0 +1,24 @@
+table Role
+	lineageTag: 2287fbd3-29ad-5af9-b6f8-928de8a1e166
+
+	column role_type
+		dataType: string
+		lineageTag: eef88efe-5760-56f7-8316-5691cd2d5b4e
+		summarizeBy: none
+		sourceColumn: role_type
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Role = m
+		mode: import
+		source =
+				let
+				    Raw = if DataFolder = null or Text.Length(DataFolder) = 0 then Binary.Decompress(Binary.FromText("H4sIAAAAAAAC/yvKz0mNL6ksSOVKSiwpycxL50rKL88B0QBRQSUAGgAAAA==", BinaryEncoding.Base64), Compression.GZip) else File.Contents(DataFolder & "Role.csv"),
+				    Source = Csv.Document(Raw, [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				    Typed = Table.TransformColumnTypes(Promoted, {{"role_type", type text}}, "en-US")
+				in
+				    Typed
+
+	annotation PBI_ResultType = Table
+

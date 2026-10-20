@@ -1,0 +1,49 @@
+table MLModel
+	lineageTag: 88c700ee-7042-512f-8a29-0b61957f1c30
+
+	column model
+		dataType: string
+		lineageTag: f8465f4b-ecfc-5eb2-aa8d-b54b8cd0612e
+		summarizeBy: none
+		sourceColumn: model
+
+		annotation SummarizationSetBy = Automatic
+
+	column model_label
+		dataType: string
+		lineageTag: 321a54a3-6bba-5331-8ebb-88524b981e13
+		summarizeBy: none
+		sourceColumn: model_label
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_baseline
+		dataType: int64
+		formatString: 0
+		lineageTag: 8ae45ed1-3b3b-5a96-a386-0c295a00d0c8
+		summarizeBy: none
+		sourceColumn: is_baseline
+
+		annotation SummarizationSetBy = Automatic
+
+	column model_short
+		dataType: string
+		lineageTag: b1945e04-91b0-5ec1-b44c-d57180417971
+		summarizeBy: none
+		sourceColumn: model_short
+
+		annotation SummarizationSetBy = Automatic
+
+	partition MLModel = m
+		mode: import
+		source =
+				let
+				    Raw = if DataFolder = null or Text.Length(DataFolder) = 0 then Binary.Decompress(Binary.FromText("H4sIAAAAAAAC/22PSw7CMAxE9zlFDpBFu2XBArEECXEBy21Na5QPigOI29OW9CexiTxvPGPFhYasccMLFqt+ZoEKhSx7yly6EJOaIDi8h8jpYw6Z7PSEdG1RxJTmvAFL9vGAiIkAq/AiSBHZg6OG0a/aLhc9LOlxSWe7NNenXZn7bCzdHbcdxfnEm72sSn/uHB/dqXPrKRtalsQ1RGojiXDw5pSZXrHiH1UN1TwM/e+IzDErPapiq1VE3wQHt9CHk7mOSmdVbLX6AiPqcxqqAQAA", BinaryEncoding.Base64), Compression.GZip) else File.Contents(DataFolder & "MLModel.csv"),
+				    Source = Csv.Document(Raw, [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				    Typed = Table.TransformColumnTypes(Promoted, {{"model", type text}, {"model_label", type text}, {"is_baseline", Int64.Type}, {"model_short", type text}}, "en-US")
+				in
+				    Typed
+
+	annotation PBI_ResultType = Table
+

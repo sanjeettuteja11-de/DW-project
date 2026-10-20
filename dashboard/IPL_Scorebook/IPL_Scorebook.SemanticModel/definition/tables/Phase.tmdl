@@ -1,0 +1,61 @@
+table Phase
+	lineageTag: aac2633c-3f99-56e9-bc57-d846887cce17
+
+	column phase_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 012b0bdf-cd0b-5a3c-900c-0ea647d6c742
+		summarizeBy: none
+		isHidden
+		sourceColumn: phase_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column phase
+		dataType: string
+		lineageTag: da2a71be-830a-5c2b-843b-15fe4a679e16
+		summarizeBy: none
+		sortByColumn: phase_key
+		sourceColumn: phase
+
+		annotation SummarizationSetBy = Automatic
+
+	column start_over
+		dataType: int64
+		formatString: 0
+		lineageTag: a85abd2c-3ced-5083-ba46-d19a773e517a
+		summarizeBy: none
+		sourceColumn: start_over
+
+		annotation SummarizationSetBy = Automatic
+
+	column end_over
+		dataType: int64
+		formatString: 0
+		lineageTag: e8f3770e-4e52-5837-9c13-9b3d89d3e7d4
+		summarizeBy: none
+		sourceColumn: end_over
+
+		annotation SummarizationSetBy = Automatic
+
+	column overs
+		dataType: string
+		lineageTag: b3803489-b7e8-5c4c-9dc8-ae233e8f7089
+		summarizeBy: none
+		sourceColumn: overs
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Phase = m
+		mode: import
+		source =
+				let
+				    Raw = if DataFolder = null or Text.Length(DataFolder) = 0 then Binary.Decompress(Binary.FromText("H4sIAAAAAAAC/yXGQQqAIBAF0P2c5QuNoV6gbdANQnCgSFJUim5f0ubx8uarrIc8yH2ozZe2pksK5Ax/OpUYS7ql5OgfMCxYWdKY9xCiwIENnGJDIybxbQNb6OFT6YFeA+FvkWUAAAA=", BinaryEncoding.Base64), Compression.GZip) else File.Contents(DataFolder & "Phase.csv"),
+				    Source = Csv.Document(Raw, [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				    Typed = Table.TransformColumnTypes(Promoted, {{"phase_key", Int64.Type}, {"phase", type text}, {"start_over", Int64.Type}, {"end_over", Int64.Type}, {"overs", type text}}, "en-US")
+				in
+				    Typed
+
+	annotation PBI_ResultType = Table
+

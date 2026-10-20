@@ -1,0 +1,135 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/1.2.0/schema.json",
+  "name": "p3_model",
+  "displayName": "Model",
+  "displayOption": "FitToPage",
+  "height": 720,
+  "width": 1280,
+  "visualInteractions": [
+    {
+      "source": "every_model",
+      "target": "rule_top",
+      "type": "NoFilter"
+    },
+    {
+      "source": "every_model",
+      "target": "kicker",
+      "type": "NoFilter"
+    },
+    {
+      "source": "every_model",
+      "target": "headline",
+      "type": "NoFilter"
+    },
+    {
+      "source": "every_model",
+      "target": "dek",
+      "type": "NoFilter"
+    },
+    {
+      "source": "every_model",
+      "target": "nav_1",
+      "type": "NoFilter"
+    },
+    {
+      "source": "every_model",
+      "target": "nav_2",
+      "type": "NoFilter"
+    },
+    {
+      "source": "every_model",
+      "target": "nav_3",
+      "type": "NoFilter"
+    },
+    {
+      "source": "every_model",
+      "target": "rule_mid",
+      "type": "NoFilter"
+    },
+    {
+      "source": "every_model",
+      "target": "footer",
+      "type": "NoFilter"
+    },
+    {
+      "source": "every_model",
+      "target": "slicer_set",
+      "type": "NoFilter"
+    },
+    {
+      "source": "every_model",
+      "target": "slicer_model",
+      "type": "NoFilter"
+    },
+    {
+      "source": "every_model",
+      "target": "stat_1",
+      "type": "NoFilter"
+    },
+    {
+      "source": "every_model",
+      "target": "stat_2",
+      "type": "NoFilter"
+    },
+    {
+      "source": "every_model",
+      "target": "stat_sep_1",
+      "type": "NoFilter"
+    },
+    {
+      "source": "every_model",
+      "target": "stat_3",
+      "type": "NoFilter"
+    },
+    {
+      "source": "every_model",
+      "target": "stat_sep_2",
+      "type": "NoFilter"
+    },
+    {
+      "source": "every_model",
+      "target": "stat_4",
+      "type": "NoFilter"
+    },
+    {
+      "source": "every_model",
+      "target": "stat_sep_3",
+      "type": "NoFilter"
+    },
+    {
+      "source": "every_model",
+      "target": "pp_gap",
+      "type": "NoFilter"
+    },
+    {
+      "source": "every_model",
+      "target": "scatter",
+      "type": "NoFilter"
+    },
+    {
+      "source": "every_model",
+      "target": "rule_row3",
+      "type": "NoFilter"
+    },
+    {
+      "source": "every_model",
+      "target": "confusion",
+      "type": "NoFilter"
+    },
+    {
+      "source": "every_model",
+      "target": "chase_wickets",
+      "type": "NoFilter"
+    },
+    {
+      "source": "every_model",
+      "target": "importance",
+      "type": "NoFilter"
+    },
+    {
+      "source": "every_model",
+      "target": "misses",
+      "type": "NoFilter"
+    }
+  ]
+}

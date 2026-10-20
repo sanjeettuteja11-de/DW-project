@@ -1,0 +1,41 @@
+table Franchise
+	lineageTag: 802ef1da-fb1f-52d7-968c-b6c65f50a2d0
+
+	column franchise_id
+		dataType: string
+		lineageTag: 55d16a47-ff52-5b1a-871b-f471787c6f2e
+		summarizeBy: none
+		sourceColumn: franchise_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column latest_name
+		dataType: string
+		lineageTag: 153a9730-4c7c-54ed-8335-43a40b314489
+		summarizeBy: none
+		sourceColumn: latest_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column active
+		dataType: int64
+		formatString: 0
+		lineageTag: 8c2256c0-8e71-5f6a-aa25-95a2cbe70fa1
+		summarizeBy: none
+		sourceColumn: active
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Franchise = m
+		mode: import
+		source =
+				let
+				    Raw = if DataFolder = null or Text.Length(DataFolder) = 0 then Binary.Decompress(Binary.FromText("H4sIAAAAAAAC/z1QS47CMAzdc4ocwIuZK1BQi1KkKqnEErltpjUEF+UzI24/TmfEytLz+/j5KyCPC0V3pQk8JhfTlfHhAMdE325XWQ3V4piRlM1PF5QmniN87g5VAwc3jsiqWjDMLkT42B2OraB+IVXhkxL6Qq1bqPMNAybV0sqFV/dvqBcaF5rWBvTq75hQaaZ5ScrQVHxl12vZyaWqz/EumNIuoEexam0NbR7vvP78n1gTciqq8wnO+THI7See6C+l22sLXeYbDu8u3eVUIKcuGAKtWxNT7cGsL/SlnveOS0O1l4k+hywq01kwFMVDbeItfC7ZRW7A4A1jWuRBm08JsqYBmznIw8WseUk7HHCSzS8vMkAviQEAAA==", BinaryEncoding.Base64), Compression.GZip) else File.Contents(DataFolder & "Franchise.csv"),
+				    Source = Csv.Document(Raw, [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				    Typed = Table.TransformColumnTypes(Promoted, {{"franchise_id", type text}, {"latest_name", type text}, {"active", Int64.Type}}, "en-US")
+				in
+				    Typed
+
+	annotation PBI_ResultType = Table
+

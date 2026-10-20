@@ -1,0 +1,7 @@
+expression DataFolder = "" meta [IsParameterQuery = true, Type = "Text", IsParameterQueryRequired = false]
+	lineageTag: 51dac003-da1a-5655-b9cc-874c9c152380
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Text
+

@@ -1,0 +1,19 @@
+team_key,franchise_id,team_name,valid_from_season,valid_to_season,is_current
+1,CSK,Chennai Super Kings,2008,,1
+2,DCH,Deccan Chargers,2008,2012.0,0
+3,DEL,Delhi Daredevils,2008,2018.0,0
+4,DEL,Delhi Capitals,2019,,1
+5,GL,Gujarat Lions,2016,2017.0,0
+6,GT,Gujarat Titans,2022,,1
+7,KKR,Kolkata Knight Riders,2008,,1
+8,KTK,Kochi Tuskers Kerala,2011,2011.0,0
+9,LSG,Lucknow Super Giants,2022,,1
+10,MI,Mumbai Indians,2008,,1
+11,PBKS,Kings XI Punjab,2008,2020.0,0
+12,PBKS,Punjab Kings,2021,,1
+13,PWI,Pune Warriors,2011,2013.0,0
+14,RCB,Royal Challengers Bangalore,2008,2023.0,0
+15,RCB,Royal Challengers Bengaluru,2024,,1
+16,RPS,Rising Pune Supergiant,2016,2017.0,0
+17,RR,Rajasthan Royals,2008,,1
+18,SRH,Sunrisers Hyderabad,2013,,1

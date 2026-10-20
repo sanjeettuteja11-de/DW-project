@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "IPL_Scorebook"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "8aae6cc8-ce8b-5b16-aeaa-aa83c65fe148"
+  }
+}

@@ -1,0 +1,230 @@
+createOrReplace
+
+	relationship InningsPhase_batting_franchise_to_Franchise
+		fromColumn: InningsPhase.batting_franchise
+		toColumn: Franchise.franchise_id
+
+	ref table InningsPhase
+
+		measure 'Total Runs' = SUM ( InningsPhase[runs] )
+			formatString: #,0
+			displayFolder: Scoring
+
+		measure 'Legal Balls' = SUM ( InningsPhase[legal_balls] )
+			formatString: #,0
+			displayFolder: Scoring
+
+		measure 'Run Rate' = DIVIDE ( [Total Runs] * 6, [Legal Balls] )
+			formatString: 0.00
+			displayFolder: Scoring
+
+		measure 'Boundary %' = DIVIDE ( SUM ( InningsPhase[boundaries] ), SUM ( InningsPhase[balls_faced] ) )
+			formatString: 0.0%
+			displayFolder: Scoring
+
+		measure 'Dot %' = DIVIDE ( SUM ( InningsPhase[dots] ), [Legal Balls] )
+			formatString: 0.0%
+			displayFolder: Scoring
+
+		measure 'PP Run Rate' = CALCULATE ( [Run Rate], Phase[phase] = "Powerplay" )
+			formatString: 0.00
+			displayFolder: Scoring
+
+		measure 'PP Boundary %' = CALCULATE ( [Boundary %], Phase[phase] = "Powerplay" )
+			formatString: 0.0%
+			displayFolder: Scoring
+
+		measure 'PP Dot %' = CALCULATE ( [Dot %], Phase[phase] = "Powerplay" )
+			formatString: 0.0%
+			displayFolder: Scoring
+
+		measure 'PP RR First Season' = VAR s = MIN ( Season[season] ) RETURN CALCULATE ( [PP Run Rate], Season[season] = s )
+			formatString: 0.00
+			displayFolder: Scoring
+
+		measure 'PP RR Last Season' = VAR s = MAX ( Season[season] ) RETURN CALCULATE ( [PP Run Rate], Season[season] = s )
+			formatString: 0.00
+			displayFolder: Scoring
+
+		measure 'PP RR Change' = DIVIDE ( [PP RR Last Season], [PP RR First Season] ) - 1
+			formatString: +0%;-0%;0%
+			displayFolder: Scoring
+
+	ref table Season
+
+		measure 'Season Range' = VAR a = MIN ( Season[season] ) VAR b = MAX ( Season[season] ) RETURN IF ( a = b, FORMAT ( a, "0" ), FORMAT ( a, "0" ) & "–" & FORMAT ( b, "0" ) )
+			displayFolder: Labels
+
+		measure 'First Season' = MIN ( Season[season] )
+			formatString: 0
+			displayFolder: Labels
+
+		measure 'Last Season' = MAX ( Season[season] )
+			formatString: 0
+			displayFolder: Labels
+
+	ref table Matches
+
+		measure 'Match Count' = COUNTROWS ( Matches )
+			formatString: #,0
+			displayFolder: Matches
+
+		measure 'Avg First-Innings Score' = CALCULATE ( AVERAGE ( Matches[inn1_total_runs] ), Matches[match_status] = "completed" )
+			formatString: 0
+			displayFolder: Matches
+
+		measure 'Avg 1st Inns (10+ matches)' = IF ( [Match Count] >= 10, [Avg First-Innings Score] )
+			formatString: 0
+			displayFolder: Matches
+
+		measure '200+ Totals' = CALCULATE ( COUNTROWS ( Matches ), Matches[inn1_total_runs] >= 200 ) + CALCULATE ( COUNTROWS ( Matches ), Matches[inn2_total_runs] >= 200 ) + 0
+			formatString: #,0
+			displayFolder: Matches
+
+		measure '200+ Totals Last Season' = VAR s = MAX ( Season[season] ) RETURN CALCULATE ( [200+ Totals], Season[season] = s )
+			formatString: #,0
+			displayFolder: Matches
+
+		measure 'Toss Winner Win %' = AVERAGE ( Matches[toss_winner_won] )
+			formatString: 0.0%
+			displayFolder: Matches
+
+		measure 'Chose To Field %' = DIVIDE ( CALCULATE ( COUNTROWS ( Matches ), Matches[toss_decision] = "field" ), COUNTROWS ( Matches ) )
+			formatString: 0%
+			displayFolder: Matches
+
+		measure 'Bat-First Win %' = CALCULATE ( AVERAGE ( Matches[bat_first_won] ), Matches[ml_eligible] = 1 )
+			formatString: 0.0%
+			displayFolder: Matches
+
+		measure 'Chase Win %' = CALCULATE ( 1 - AVERAGE ( Matches[bat_first_won] ), Matches[ml_eligible] = 1 )
+			formatString: 0.0%
+			displayFolder: Matches
+
+		measure 'Higher PP Rate Wins %' = CALCULATE ( AVERAGEX ( Matches, IF ( ( Matches[pp_run_rate_diff] > 0 ) = ( Matches[bat_first_won] = 1 ), 1, 0 ) ), Matches[ml_eligible] = 1, Matches[pp_run_rate_diff] <> 0 )
+			formatString: 0.0%
+			displayFolder: Matches
+
+	ref table TeamMatches
+
+		measure 'Team Win %' = AVERAGE ( TeamMatches[won] )
+			formatString: 0.0%
+			displayFolder: Teams
+
+		measure 'Team Matches' = COUNTROWS ( TeamMatches )
+			formatString: #,0
+			displayFolder: Teams
+
+	ref table PlayerSeasonPhase
+
+		measure 'Player Balls' = SUM ( PlayerSeasonPhase[balls] )
+			formatString: #,0
+			displayFolder: Players
+
+		measure 'Phase Share' = DIVIDE ( [Player Balls], CALCULATE ( [Player Balls], REMOVEFILTERS ( Phase ) ) )
+			formatString: 0%
+			displayFolder: Players
+
+		measure 'Strike Rate' = DIVIDE ( SUM ( PlayerSeasonPhase[runs] ) * 100, [Player Balls] )
+			formatString: 0.0
+			displayFolder: Players
+
+		measure 'Economy Rate' = DIVIDE ( SUM ( PlayerSeasonPhase[runs] ) * 6, [Player Balls] )
+			formatString: 0.00
+			displayFolder: Players
+
+	ref table PhaseSpells
+
+		measure Spells = COUNTROWS ( PhaseSpells )
+			formatString: #,0
+			displayFolder: Phase drift
+
+		measure 'Drift Pool' = COUNTROWS ( FILTER ( SUMMARIZE ( PhaseSpells, PhaseSpells[player_key], PhaseSpells[role_type] ), CALCULATE ( SUM ( PhaseSpells[qualifying_seasons] ) ) >= 2 ) )
+			formatString: #,0
+			displayFolder: Phase drift
+
+		measure 'Players Who Changed' = COUNTROWS ( FILTER ( SUMMARIZE ( PhaseSpells, PhaseSpells[player_key], PhaseSpells[role_type] ), CALCULATE ( COUNTROWS ( PhaseSpells ) ) > 1 ) )
+			formatString: #,0
+			displayFolder: Phase drift
+
+		measure 'Changed %' = DIVIDE ( [Players Who Changed], [Drift Pool] )
+			formatString: 0%
+			displayFolder: Phase drift
+
+		measure 'Qualifying Seasons' = SUM ( PhaseSpells[qualifying_seasons] )
+			formatString: 0
+			displayFolder: Phase drift
+
+		measure 'Spell Colour' = SWITCH ( SELECTEDVALUE ( PhaseSpells[primary_phase] ), "Powerplay", "#C8553D", "Middle", "#2E6F95", "Death", "#2F5D50", "#8C9196" )
+			displayFolder: Formatting
+
+	ref table PhaseChanges
+
+		measure 'Phase Changes' = COUNTROWS ( PhaseChanges )
+			formatString: #,0
+			displayFolder: Phase drift
+
+		measure 'Moves Touching Middle %' = DIVIDE ( CALCULATE ( COUNTROWS ( PhaseChanges ), FILTER ( PhaseChanges, PhaseChanges[from_phase] = "Middle" || PhaseChanges[to_phase] = "Middle" ) ), COUNTROWS ( PhaseChanges ) )
+			formatString: 0%
+			displayFolder: Phase drift
+
+	ref table ModelMetrics
+
+		measure 'Test Accuracy' = AVERAGE ( ModelMetrics[accuracy] )
+			formatString: 0.0%
+			displayFolder: Model
+
+		measure 'ROC AUC' = AVERAGE ( ModelMetrics[roc_auc] )
+			formatString: 0.00
+			displayFolder: Model
+
+		measure 'Baseline Accuracy' = CALCULATE ( [Test Accuracy], REMOVEFILTERS ( 'Model' ), 'Model'[is_baseline] = 1, 'Model'[model] <> "baseline_majority" )
+			formatString: 0.0%
+			displayFolder: Model
+
+		measure 'Selected Model' = CALCULATE ( SELECTEDVALUE ( TestPredictions[model_label] ), REMOVEFILTERS ( 'Model' ) )
+			displayFolder: Model
+
+		measure 'Model Bar Colour' = IF ( SELECTEDVALUE ( 'Model'[model_label] ) = [Selected Model], "#1B1F24", IF ( SELECTEDVALUE ( 'Model'[is_baseline] ) = 1, "#D8D2C4", "#A9A294" ) )
+			displayFolder: Formatting
+
+		measure 'ROC AUC (selected)' = CALCULATE ( [ROC AUC], TREATAS ( VALUES ( TestPredictions[model] ), 'Model'[model] ) )
+			formatString: 0.00
+			displayFolder: Model
+
+	ref table TestPredictions
+
+		measure Predictions = COUNTROWS ( TestPredictions )
+			formatString: #,0
+			displayFolder: Model
+
+		measure 'Test Matches' = DISTINCTCOUNT ( TestPredictions[match_key] )
+			formatString: #,0
+			displayFolder: Model
+
+		measure 'Hit Rate' = AVERAGE ( TestPredictions[correct] )
+			formatString: 0.0%
+			displayFolder: Model
+
+		measure 'Lift vs Baseline' = ( [Hit Rate] - [Baseline Accuracy] ) * 100
+			formatString: +0.0" pts";-0.0" pts";0.0" pts"
+			displayFolder: Model
+
+		measure 'P(Bat First Wins)' = AVERAGE ( TestPredictions[prob_bat_first_wins] )
+			formatString: 0.00
+			displayFolder: Model
+
+		measure 'Confident Miss P' = CALCULATE ( AVERAGE ( TestPredictions[prob_bat_first_wins] ), TestPredictions[correct] = 0, TestPredictions[confidence] >= 0.7 )
+			formatString: 0.00
+			displayFolder: Model
+
+		measure 'Confident Misses' = CALCULATE ( COUNTROWS ( TestPredictions ), TestPredictions[correct] = 0, TestPredictions[confidence] >= 0.7 ) + 0
+			formatString: #,0
+			displayFolder: Model
+
+	ref table FeatureImportance
+
+		measure 'RF Importance' = CALCULATE ( SUM ( FeatureImportance[abs_value] ), 'Model'[model] = "random_forest" )
+			formatString: 0.000
+			displayFolder: Model
+

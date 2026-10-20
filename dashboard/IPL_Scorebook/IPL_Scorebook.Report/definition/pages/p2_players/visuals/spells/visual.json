@@ -1,0 +1,282 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.3.0/schema.json",
+  "name": "spells",
+  "position": {
+    "x": 924,
+    "y": 220,
+    "z": 2100,
+    "height": 232,
+    "width": 332,
+    "tabOrder": 2100
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "PhaseSpells"
+                    }
+                  },
+                  "Property": "valid_from_season"
+                }
+              },
+              "queryRef": "PhaseSpells.valid_from_season",
+              "nativeQueryRef": "valid_from_season",
+              "displayName": "From"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "PhaseSpells"
+                    }
+                  },
+                  "Property": "last_seen_season"
+                }
+              },
+              "queryRef": "PhaseSpells.last_seen_season",
+              "nativeQueryRef": "last_seen_season",
+              "displayName": "Last seen"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "PhaseSpells"
+                    }
+                  },
+                  "Property": "primary_phase"
+                }
+              },
+              "queryRef": "PhaseSpells.primary_phase",
+              "nativeQueryRef": "primary_phase",
+              "displayName": "Primary phase"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "PhaseSpells"
+                    }
+                  },
+                  "Property": "qualifying_seasons"
+                }
+              },
+              "queryRef": "PhaseSpells.qualifying_seasons",
+              "nativeQueryRef": "qualifying_seasons",
+              "displayName": "Seasons"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "PhaseSpells"
+                    }
+                  },
+                  "Property": "phase_index_value"
+                }
+              },
+              "queryRef": "PhaseSpells.phase_index_value",
+              "nativeQueryRef": "phase_index_value",
+              "displayName": "Index"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "PhaseSpells"
+                    }
+                  },
+                  "Property": "spell_status"
+                }
+              },
+              "queryRef": "PhaseSpells.spell_status",
+              "nativeQueryRef": "spell_status",
+              "displayName": "Row"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "PhaseSpells"
+                  }
+                },
+                "Property": "valid_from_season"
+              }
+            },
+            "direction": "Ascending"
+          }
+        ],
+        "isDefaultSort": false
+      }
+    },
+    "objects": {
+      "columnHeaders": [
+        {
+          "properties": {
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "8D"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "values": [
+        {
+          "properties": {
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "9D"
+                }
+              }
+            }
+          }
+        },
+        {
+          "properties": {
+            "backColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "PhaseSpells"
+                        }
+                      },
+                      "Property": "Spell Colour"
+                    }
+                  }
+                }
+              }
+            },
+            "fontColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#FFFFFF'"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "selector": {
+            "data": [
+              {
+                "dataViewWildcard": {
+                  "matchingOption": 1
+                }
+              }
+            ],
+            "metadata": "PhaseSpells.primary_phase"
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'His spells in the warehouse'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Rows of dim_player_phase_profile (SCD Type 2).'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "background": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "border": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "dropShadow": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

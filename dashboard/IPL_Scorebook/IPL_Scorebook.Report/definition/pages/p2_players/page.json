@@ -1,0 +1,155 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/1.2.0/schema.json",
+  "name": "p2_players",
+  "displayName": "Players",
+  "displayOption": "FitToPage",
+  "height": 720,
+  "width": 1280,
+  "visualInteractions": [
+    {
+      "source": "slicer_player",
+      "target": "stat_1",
+      "type": "NoFilter"
+    },
+    {
+      "source": "slicer_player",
+      "target": "stat_2",
+      "type": "NoFilter"
+    },
+    {
+      "source": "slicer_player",
+      "target": "stat_3",
+      "type": "NoFilter"
+    },
+    {
+      "source": "slicer_player",
+      "target": "stat_4",
+      "type": "NoFilter"
+    },
+    {
+      "source": "slicer_player",
+      "target": "restless",
+      "type": "NoFilter"
+    },
+    {
+      "source": "slicer_player",
+      "target": "moves",
+      "type": "NoFilter"
+    },
+    {
+      "source": "restless",
+      "target": "rule_top",
+      "type": "NoFilter"
+    },
+    {
+      "source": "restless",
+      "target": "kicker",
+      "type": "NoFilter"
+    },
+    {
+      "source": "restless",
+      "target": "headline",
+      "type": "NoFilter"
+    },
+    {
+      "source": "restless",
+      "target": "dek",
+      "type": "NoFilter"
+    },
+    {
+      "source": "restless",
+      "target": "nav_1",
+      "type": "NoFilter"
+    },
+    {
+      "source": "restless",
+      "target": "nav_2",
+      "type": "NoFilter"
+    },
+    {
+      "source": "restless",
+      "target": "nav_3",
+      "type": "NoFilter"
+    },
+    {
+      "source": "restless",
+      "target": "rule_mid",
+      "type": "NoFilter"
+    },
+    {
+      "source": "restless",
+      "target": "footer",
+      "type": "NoFilter"
+    },
+    {
+      "source": "restless",
+      "target": "slicer_role",
+      "type": "NoFilter"
+    },
+    {
+      "source": "restless",
+      "target": "slicer_player",
+      "type": "NoFilter"
+    },
+    {
+      "source": "restless",
+      "target": "stat_1",
+      "type": "NoFilter"
+    },
+    {
+      "source": "restless",
+      "target": "stat_2",
+      "type": "NoFilter"
+    },
+    {
+      "source": "restless",
+      "target": "stat_sep_1",
+      "type": "NoFilter"
+    },
+    {
+      "source": "restless",
+      "target": "stat_3",
+      "type": "NoFilter"
+    },
+    {
+      "source": "restless",
+      "target": "stat_sep_2",
+      "type": "NoFilter"
+    },
+    {
+      "source": "restless",
+      "target": "stat_4",
+      "type": "NoFilter"
+    },
+    {
+      "source": "restless",
+      "target": "stat_sep_3",
+      "type": "NoFilter"
+    },
+    {
+      "source": "restless",
+      "target": "balls_by_phase",
+      "type": "NoFilter"
+    },
+    {
+      "source": "restless",
+      "target": "spells",
+      "type": "NoFilter"
+    },
+    {
+      "source": "restless",
+      "target": "rule_row3",
+      "type": "NoFilter"
+    },
+    {
+      "source": "restless",
+      "target": "moves",
+      "type": "NoFilter"
+    },
+    {
+      "source": "restless",
+      "target": "franchise_heat",
+      "type": "NoFilter"
+    }
+  ]
+}

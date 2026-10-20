@@ -1,0 +1,32 @@
+table FeatureSet
+	lineageTag: 0ffd4bd2-eee7-5969-bbd4-4ce9c2d6adfc
+
+	column feature_set
+		dataType: string
+		lineageTag: 74a7358c-8507-50ea-b75b-6dcf20add4b1
+		summarizeBy: none
+		sourceColumn: feature_set
+
+		annotation SummarizationSetBy = Automatic
+
+	column prediction_point
+		dataType: string
+		lineageTag: 7eccecfa-dd83-5c9d-8d23-913cc1686640
+		summarizeBy: none
+		sourceColumn: prediction_point
+
+		annotation SummarizationSetBy = Automatic
+
+	partition FeatureSet = m
+		mode: import
+		source =
+				let
+				    Raw = if DataFolder = null or Text.Length(DataFolder) = 0 then Binary.Decompress(Binary.FromText("H4sIAAAAAAAC/0tLTSwpLUqNL04t0SkoSk3JTC7JzM+LL8jPzCvhctRxtFJITCtJLVIoyUhVMCwu0c3My8vMSy9WCMgvTy0qyEms5HLScYIpSsovyUDIFHMBAMNiiDddAAAA", BinaryEncoding.Base64), Compression.GZip) else File.Contents(DataFolder & "FeatureSet.csv"),
+				    Source = Csv.Document(Raw, [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				    Typed = Table.TransformColumnTypes(Promoted, {{"feature_set", type text}, {"prediction_point", type text}}, "en-US")
+				in
+				    Typed
+
+	annotation PBI_ResultType = Table
+

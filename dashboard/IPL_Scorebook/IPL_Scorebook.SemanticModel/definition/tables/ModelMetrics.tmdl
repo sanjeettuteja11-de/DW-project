@@ -1,0 +1,183 @@
+table ModelMetrics
+	lineageTag: 53dbfc66-a999-56a4-9bce-646945e5e547
+
+	measure 'Test Accuracy' = AVERAGE ( ModelMetrics[accuracy] )
+		formatString: 0.0%
+		displayFolder: Model
+		lineageTag: 9746dd06-91c5-5779-adb0-1c9ea9e50148
+
+	measure 'ROC AUC' = AVERAGE ( ModelMetrics[roc_auc] )
+		formatString: 0.00
+		displayFolder: Model
+		lineageTag: 0224f1fe-ad72-56b8-8bed-d4441750c266
+
+	measure 'Baseline Accuracy' = CALCULATE ( [Test Accuracy], REMOVEFILTERS ( MLModel ), MLModel[is_baseline] = 1, MLModel[model] <> "baseline_majority" )
+		formatString: 0.0%
+		displayFolder: Model
+		lineageTag: c0a7179b-832c-5bb9-8d97-ce5262edca66
+
+	measure 'Selected Model' = CALCULATE ( SELECTEDVALUE ( TestPredictions[model] ), REMOVEFILTERS ( MLModel ) )
+		displayFolder: Model
+		lineageTag: 60aa1dd1-ca9a-582e-86a6-6972a5160669
+
+	measure 'Model Bar Colour' = IF ( SELECTEDVALUE ( MLModel[model] ) = [Selected Model], "#1B1F24", IF ( SELECTEDVALUE ( MLModel[is_baseline] ) = 1, "#D8D2C4", "#A9A294" ) )
+		displayFolder: Formatting
+		lineageTag: c337c981-31b5-58dc-bf10-cfe33dded139
+
+	measure 'ROC AUC (selected)' = CALCULATE ( [ROC AUC], TREATAS ( VALUES ( TestPredictions[model] ), MLModel[model] ) )
+		formatString: 0.00
+		displayFolder: Model
+		lineageTag: 52600a31-e29f-5fa2-938d-578bb5b0297f
+
+	column feature_set
+		dataType: string
+		lineageTag: 862b94f2-fcef-5216-a170-e8747642dd0d
+		summarizeBy: none
+		sourceColumn: feature_set
+
+		annotation SummarizationSetBy = Automatic
+
+	column model
+		dataType: string
+		lineageTag: 850d1c5e-bc68-59be-bcaa-a835570cc755
+		summarizeBy: none
+		sourceColumn: model
+
+		annotation SummarizationSetBy = Automatic
+
+	column params
+		dataType: string
+		lineageTag: 89313baf-387c-5c41-9335-c8ccd2d02f65
+		summarizeBy: none
+		sourceColumn: params
+
+		annotation SummarizationSetBy = Automatic
+
+	column split
+		dataType: string
+		lineageTag: 6e8be968-2231-5879-9053-06efef0f4c4b
+		summarizeBy: none
+		sourceColumn: split
+
+		annotation SummarizationSetBy = Automatic
+
+	column n
+		dataType: int64
+		formatString: 0
+		lineageTag: 5abcff7d-413d-523d-9efd-226cf29de007
+		summarizeBy: sum
+		sourceColumn: n
+
+		annotation SummarizationSetBy = Automatic
+
+	column accuracy
+		dataType: double
+		formatString: 0.0%
+		lineageTag: 8c6191ef-1476-5d82-91e8-1ccac6cbd5f8
+		summarizeBy: sum
+		sourceColumn: accuracy
+
+		annotation SummarizationSetBy = Automatic
+
+	column precision
+		dataType: double
+		formatString: 0.0%
+		lineageTag: 14f4d48f-097e-5e5d-804e-20df75ea11b5
+		summarizeBy: sum
+		sourceColumn: precision
+
+		annotation SummarizationSetBy = Automatic
+
+	column recall
+		dataType: double
+		formatString: 0.0%
+		lineageTag: 7a7f01c4-875f-5d2a-8209-3d875c928657
+		summarizeBy: sum
+		sourceColumn: recall
+
+		annotation SummarizationSetBy = Automatic
+
+	column f1
+		dataType: double
+		formatString: 0.000
+		lineageTag: 11fc01ad-9d0e-55b7-ae00-774aafe5510c
+		summarizeBy: sum
+		sourceColumn: f1
+
+		annotation SummarizationSetBy = Automatic
+
+	column roc_auc
+		dataType: double
+		formatString: 0.000
+		lineageTag: 580789dc-8b7f-5de1-8097-c54ea1a60375
+		summarizeBy: sum
+		sourceColumn: roc_auc
+
+		annotation SummarizationSetBy = Automatic
+
+	column tn
+		dataType: int64
+		formatString: 0
+		lineageTag: 42247382-1151-5a70-9f52-c22e55e9ffd3
+		summarizeBy: sum
+		sourceColumn: tn
+
+		annotation SummarizationSetBy = Automatic
+
+	column fp
+		dataType: int64
+		formatString: 0
+		lineageTag: 6a96f5de-5876-5ccb-b971-fc2547d30cb0
+		summarizeBy: sum
+		sourceColumn: fp
+
+		annotation SummarizationSetBy = Automatic
+
+	column fn
+		dataType: int64
+		formatString: 0
+		lineageTag: 314488ae-476f-5fb4-8b64-bf3fb981afc9
+		summarizeBy: sum
+		sourceColumn: fn
+
+		annotation SummarizationSetBy = Automatic
+
+	column tp
+		dataType: int64
+		formatString: 0
+		lineageTag: db6a95aa-4196-5e82-aae8-d4cb3ffc27e1
+		summarizeBy: sum
+		sourceColumn: tp
+
+		annotation SummarizationSetBy = Automatic
+
+	column model_label
+		dataType: string
+		lineageTag: 69c606f8-f012-52ef-a44f-bf2a959d43e9
+		summarizeBy: none
+		sourceColumn: model_label
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_baseline
+		dataType: int64
+		formatString: 0
+		lineageTag: bc880595-4731-522e-85ca-6923a1b8d5ae
+		summarizeBy: none
+		sourceColumn: is_baseline
+
+		annotation SummarizationSetBy = Automatic
+
+	partition ModelMetrics = m
+		mode: import
+		source =
+				let
+				    Raw = if DataFolder = null or Text.Length(DataFolder) = 0 then Binary.Decompress(Binary.FromText("H4sIAAAAAAAC/7WTy27bMBRE9/kKIRtvLgJSfDq7ul12EfQHCFqibBbUAyTdNgjy7yUpOZUTI0gWBSQNQUBzRpejzuh48kYFE6EfW+Ng0l73AcLkbIQBdNOcvG4eYfKmscGOA6SFdg46DH5slD41EAfoJugGiNPsopzeJy8b1F4H4+xgbr7Aeal6/XP0Nj4CRBMiYFoDuqNCbpOg1c2AS0AgaHrslpfvq/PbVeN0CIDXztOkvI5G6f34y6jotR1Ub1qrhwsW22KWRbAssqYkCRdCZuG8hpoAZYAJcLwiPzxU2b0q7tXim/luPNgQbaO8OXgTypSeNl839xW6w89rMkeMZ6nxFeG1BIogPfOCw/fFtlrZooRrl5NIH2gM3D5tev1HtWaKx0RkUG369NlB95MzQTmju7Rdo+fbixFwQjMTY5yHT1kePsMlHZNUQLpqDBQDIfBtAVYFmCN4PbRjr7rRZ8tXEcj1COxVgvkQOBaFyWdZNhlLE0jnwIHUefGj8KqFh252/61NK+ejPRyNfynVbzuECwjnmSHQHJkwPNdH5M16S4Gmg0zHWWb5jzi7vpSpuGbsJ0okCS6MImew4LnFgqQ0DAGWC/h6iXbvl4h8rESc0XkCRZjEcx5RMqa9OUdKSd92aPd+h9iHOpT/1czfitIdWn4jKsp0GJLnAAgofVOhv/z7eKv7BAAA", BinaryEncoding.Base64), Compression.GZip) else File.Contents(DataFolder & "ModelMetrics.csv"),
+				    Source = Csv.Document(Raw, [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				    Typed = Table.TransformColumnTypes(Promoted, {{"feature_set", type text}, {"model", type text}, {"params", type text}, {"split", type text}, {"n", Int64.Type}, {"accuracy", type number}, {"precision", type number}, {"recall", type number}, {"f1", type number}, {"roc_auc", type number}, {"tn", Int64.Type}, {"fp", Int64.Type}, {"fn", Int64.Type}, {"tp", Int64.Type}, {"model_label", type text}, {"is_baseline", Int64.Type}}, "en-US")
+				in
+				    Typed
+
+	annotation PBI_ResultType = Table
+

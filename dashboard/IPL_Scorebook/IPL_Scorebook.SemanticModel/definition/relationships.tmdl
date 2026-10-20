@@ -1,0 +1,119 @@
+relationship Matches_season_key_Season
+	fromColumn: Matches.season_key
+	toColumn: Season.season_key
+
+relationship Matches_venue_key_Venue
+	fromColumn: Matches.venue_key
+	toColumn: Venue.venue_key
+
+relationship TeamMatches_season_key_Season
+	fromColumn: TeamMatches.season_key
+	toColumn: Season.season_key
+
+relationship TeamMatches_venue_key_Venue
+	fromColumn: TeamMatches.venue_key
+	toColumn: Venue.venue_key
+
+relationship TeamMatches_franchise_id_Franchise
+	fromColumn: TeamMatches.franchise_id
+	toColumn: Franchise.franchise_id
+
+relationship TeamMatches_match_key_Matches
+	isActive: false
+	fromColumn: TeamMatches.match_key
+	toColumn: Matches.match_key
+
+relationship InningsPhase_season_key_Season
+	fromColumn: InningsPhase.season_key
+	toColumn: Season.season_key
+
+relationship InningsPhase_phase_key_Phase
+	fromColumn: InningsPhase.phase_key
+	toColumn: Phase.phase_key
+
+relationship InningsPhase_venue_key_Venue
+	fromColumn: InningsPhase.venue_key
+	toColumn: Venue.venue_key
+
+relationship InningsPhase_batting_franchise_Franchise
+	fromColumn: InningsPhase.batting_franchise
+	toColumn: Franchise.franchise_id
+
+relationship InningsPhase_match_key_Matches
+	isActive: false
+	fromColumn: InningsPhase.match_key
+	toColumn: Matches.match_key
+
+relationship Team_franchise_id_Franchise
+	fromColumn: Team.franchise_id
+	toColumn: Franchise.franchise_id
+
+relationship PlayerSeasonPhase_season_key_Season
+	fromColumn: PlayerSeasonPhase.season_key
+	toColumn: Season.season_key
+
+relationship PlayerSeasonPhase_phase_key_Phase
+	fromColumn: PlayerSeasonPhase.phase_key
+	toColumn: Phase.phase_key
+
+relationship PlayerSeasonPhase_player_key_Player
+	fromColumn: PlayerSeasonPhase.player_key
+	toColumn: Player.player_key
+
+relationship PlayerSeasonPhase_role_type_Role
+	fromColumn: PlayerSeasonPhase.role_type
+	toColumn: Role.role_type
+
+relationship PhaseSpells_player_key_Player
+	fromColumn: PhaseSpells.player_key
+	toColumn: Player.player_key
+
+relationship PhaseSpells_role_type_Role
+	fromColumn: PhaseSpells.role_type
+	toColumn: Role.role_type
+
+relationship PhaseChanges_player_key_Player
+	fromColumn: PhaseChanges.player_key
+	toColumn: Player.player_key
+
+relationship PhaseChanges_role_type_Role
+	fromColumn: PhaseChanges.role_type
+	toColumn: Role.role_type
+
+relationship ModelMetrics_feature_set_FeatureSet
+	fromColumn: ModelMetrics.feature_set
+	toColumn: FeatureSet.feature_set
+
+relationship ModelMetrics_model_MLModel
+	fromColumn: ModelMetrics.model
+	toColumn: MLModel.model
+
+relationship TestPredictions_season_Season
+	fromColumn: TestPredictions.season
+	toColumn: Season.season
+
+relationship TestPredictions_venue_key_Venue
+	fromColumn: TestPredictions.venue_key
+	toColumn: Venue.venue_key
+
+relationship TestPredictions_feature_set_FeatureSet
+	fromColumn: TestPredictions.feature_set
+	toColumn: FeatureSet.feature_set
+
+relationship TestPredictions_model_MLModel
+	fromColumn: TestPredictions.model
+	toColumn: MLModel.model
+
+relationship TestPredictions_match_key_Matches
+	isActive: false
+	fromColumn: TestPredictions.match_key
+	toColumn: Matches.match_key
+
+relationship FeatureImportance_feature_set_FeatureSet
+	fromColumn: FeatureImportance.feature_set
+	toColumn: FeatureSet.feature_set
+
+relationship FeatureImportance_model_MLModel
+	fromColumn: FeatureImportance.model
+	toColumn: MLModel.model
+
