@@ -10,9 +10,9 @@ from .clean import CleanResult
 from .config import SQL_DIR
 
 # Insertion order respects foreign keys.
-WAREHOUSE_ORDER = ["dim_season", "dim_phase", "dim_team", "dim_venue", "dim_player", "dim_match",
-                   "fact_delivery", "fact_match_summary", "fact_player_season_phase",
-                   "dim_player_phase_profile"]
+WAREHOUSE_ORDER = ["dim_date", "dim_season", "dim_phase", "dim_team", "dim_venue", "dim_player", "dim_match",
+                   "dim_player_phase_profile", "fact_delivery", "fact_match_summary",
+                   "fact_player_season_phase"]
 
 
 def connect(db_path: Path) -> sqlite3.Connection:

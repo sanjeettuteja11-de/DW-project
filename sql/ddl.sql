@@ -1,14 +1,21 @@
 -- IPL Phase-Performance and Style-Drift Data Warehouse: star schema (deliverable D5).
 -- Layer 4 (warehouse) and layer 5 (marts). Rebuilt on every pipeline run.
 -- Column comments ("-- ...") are parsed by src/dictionary.py into docs/data_dictionary.csv.
+--
+-- Design: three fact tables at three grains (ball, match, player-season-phase) share eight
+-- conformed dimensions. Every foreign key runs from a fact to a dimension; no dimension
+-- references another dimension (no snowflaking). Role-playing dimensions: dim_team (batting,
+-- bowling, batting first, chasing, toss winner, winner) and dim_player (batter, bowler,
+-- non-striker, dismissed, fielder, player of the match).
 
 PRAGMA foreign_keys = ON;
 
-DROP TABLE IF EXISTS dim_player_phase_profile;
 DROP TABLE IF EXISTS fact_player_season_phase;
+DROP TABLE IF EXISTS dim_player_phase_profile;
 DROP TABLE IF EXISTS fact_match_summary;
 DROP TABLE IF EXISTS fact_delivery;
 DROP TABLE IF EXISTS dim_match;
+DROP TABLE IF EXISTS dim_date;
 DROP TABLE IF EXISTS dim_phase;
 DROP TABLE IF EXISTS dim_season;
 DROP TABLE IF EXISTS dim_player;
@@ -38,6 +45,18 @@ CREATE TABLE dim_player (
     canonical_name      TEXT NOT NULL UNIQUE  -- Canonical player name (variants in map_player)
 );
 
+-- @table dim_date: Calendar dimension; one row per match date.
+CREATE TABLE dim_date (
+    date_key            INTEGER PRIMARY KEY,  -- Smart key yyyymmdd (e.g. 20240526)
+    full_date           TEXT NOT NULL UNIQUE, -- ISO date yyyy-mm-dd
+    year                INTEGER NOT NULL,     -- Calendar year
+    month               INTEGER NOT NULL CHECK (month BETWEEN 1 AND 12),  -- Month number
+    month_name          TEXT NOT NULL,        -- Month name (e.g. April)
+    day_of_month        INTEGER NOT NULL,     -- Day of the month
+    day_name            TEXT NOT NULL,        -- Day of the week (e.g. Saturday)
+    is_weekend          INTEGER NOT NULL CHECK (is_weekend IN (0, 1))  -- 1 for Saturday or Sunday
+);
+
 -- @table dim_season: Seasons.
 CREATE TABLE dim_season (
     season_key          INTEGER PRIMARY KEY,  -- Surrogate key
@@ -52,16 +71,11 @@ CREATE TABLE dim_phase (
     end_over            INTEGER NOT NULL      -- Last over of the phase (1-based)
 );
 
--- @table dim_match: Match dimension.
+-- @table dim_match: Match dimension; descriptive attributes only (season, venue, teams and players are foreign keys in the facts).
 CREATE TABLE dim_match (
     match_key           INTEGER PRIMARY KEY,  -- Surrogate key
     source_match_id     INTEGER NOT NULL UNIQUE,  -- Match id in the source files
-    season_key          INTEGER NOT NULL REFERENCES dim_season(season_key),  -- Season
-    match_date          TEXT NOT NULL,        -- Match date (ISO yyyy-mm-dd)
-    venue_key           INTEGER NOT NULL REFERENCES dim_venue(venue_key),  -- Venue
-    team1_key           INTEGER NOT NULL REFERENCES dim_team(team_key),  -- Team listed first in the source
-    team2_key           INTEGER NOT NULL REFERENCES dim_team(team_key),  -- Team listed second in the source
-    toss_winner_key     INTEGER NOT NULL REFERENCES dim_team(team_key),  -- Toss winner
+    match_date          TEXT NOT NULL,        -- Match date (ISO yyyy-mm-dd); also date_key in the facts
     toss_decision       TEXT NOT NULL CHECK (toss_decision IN ('bat', 'field')),  -- Toss decision
     match_status        TEXT NOT NULL CHECK (match_status IN ('completed', 'tie', 'no_result')),  -- Match status
     result_type         TEXT,                 -- runs, wickets, tie or no_result
@@ -69,14 +83,15 @@ CREATE TABLE dim_match (
     target_runs         INTEGER,              -- Target set for the chasing side (source value)
     target_overs        REAL,                 -- Overs available to the chasing side (source value)
     is_super_over       INTEGER NOT NULL CHECK (is_super_over IN (0, 1)),  -- 1 if a Super Over was played
-    is_dl_applied       INTEGER NOT NULL CHECK (is_dl_applied IN (0, 1)),  -- 1 if Duckworth-Lewis was applied (from raw `method`)
-    player_of_match_key INTEGER REFERENCES dim_player(player_key)  -- Player of the match
+    is_dl_applied       INTEGER NOT NULL CHECK (is_dl_applied IN (0, 1))  -- 1 if Duckworth-Lewis was applied (from raw `method`)
 );
 
 -- @table fact_delivery: Delivery-grain fact; one row per match x inning x delivery_seq.
 CREATE TABLE fact_delivery (
     match_key           INTEGER NOT NULL REFERENCES dim_match(match_key),  -- Match
-    season_key          INTEGER NOT NULL REFERENCES dim_season(season_key),  -- Season (denormalised from dim_match)
+    date_key            INTEGER NOT NULL REFERENCES dim_date(date_key),  -- Match date
+    season_key          INTEGER NOT NULL REFERENCES dim_season(season_key),  -- Season
+    venue_key           INTEGER NOT NULL REFERENCES dim_venue(venue_key),  -- Venue
     inning              INTEGER NOT NULL,     -- Innings number; 3+ are Super Over innings
     delivery_seq        INTEGER NOT NULL,     -- Order of the delivery within the innings (source row order)
     batting_team_key    INTEGER NOT NULL REFERENCES dim_team(team_key),  -- Batting team
@@ -106,6 +121,7 @@ CREATE TABLE fact_delivery (
 -- @table fact_match_summary: Match-grain aggregate fact; innings 1 = batting first, innings 2 = chasing.
 CREATE TABLE fact_match_summary (
     match_key           INTEGER PRIMARY KEY REFERENCES dim_match(match_key),  -- Match
+    date_key            INTEGER NOT NULL REFERENCES dim_date(date_key),  -- Match date
     season_key          INTEGER NOT NULL REFERENCES dim_season(season_key),  -- Season
     venue_key           INTEGER NOT NULL REFERENCES dim_venue(venue_key),  -- Venue
     bat_first_team_key  INTEGER NOT NULL REFERENCES dim_team(team_key),  -- Team batting first
@@ -132,10 +148,28 @@ CREATE TABLE fact_match_summary (
     inn2_wickets        INTEGER,              -- Innings 2 wickets
     inn2_legal_balls    INTEGER,              -- Innings 2 legal balls
     winner_key          INTEGER REFERENCES dim_team(team_key),  -- Winner; NULL for no result or undecided tie
+    player_of_match_key INTEGER REFERENCES dim_player(player_key),  -- Player of the match; NULL when not awarded
     result_type         TEXT,                 -- runs, wickets, tie or no_result
     match_status        TEXT NOT NULL,        -- completed, tie or no_result
     bat_first_won       INTEGER,              -- ML target: 1 if the team batting first won; NULL without a winner
     ml_eligible         INTEGER NOT NULL CHECK (ml_eligible IN (0, 1))  -- 1 if completed, no Super Over, no D/L, both innings present
+);
+
+-- @table dim_player_phase_profile: SCD Type 2 dimension of each player's primary phase per role; one row per spell (player_key is the durable key).
+CREATE TABLE dim_player_phase_profile (
+    profile_key         INTEGER PRIMARY KEY,  -- Surrogate key (one per spell)
+    player_key          INTEGER NOT NULL,     -- Durable key of the player (same value as in dim_player)
+    player_name         TEXT NOT NULL,        -- Player name
+    role_type           TEXT NOT NULL CHECK (role_type IN ('batting', 'bowling')),  -- Role
+    primary_phase_key   INTEGER NOT NULL,     -- Primary phase for this spell (1 Powerplay, 2 Middle, 3 Death)
+    primary_phase       TEXT NOT NULL,        -- Primary phase name
+    phase_index_value   REAL NOT NULL,        -- Primary-phase index in the season the spell opened
+    valid_from_season   INTEGER NOT NULL,     -- First qualifying season of the spell
+    valid_to_season     INTEGER,              -- Last qualifying season with this phase; NULL while current
+    last_seen_season    INTEGER NOT NULL,     -- Latest qualifying season covered by the spell
+    qualifying_seasons  INTEGER NOT NULL,     -- Number of qualifying seasons in the spell
+    is_current          INTEGER NOT NULL CHECK (is_current IN (0, 1)),  -- 1 for the open spell
+    threshold_balls     INTEGER NOT NULL      -- Qualification threshold used to build the spell
 );
 
 -- @table fact_player_season_phase: Aggregate fact; one row per player x season x role_type x phase (regular innings only).
@@ -144,6 +178,7 @@ CREATE TABLE fact_player_season_phase (
     season_key          INTEGER NOT NULL REFERENCES dim_season(season_key),  -- Season
     role_type           TEXT NOT NULL CHECK (role_type IN ('batting', 'bowling')),  -- Role
     phase_key           INTEGER NOT NULL REFERENCES dim_phase(phase_key),  -- Phase
+    profile_key         INTEGER REFERENCES dim_player_phase_profile(profile_key),  -- SCD2 spell in force that season; NULL outside a spell
     balls               INTEGER NOT NULL,     -- Balls faced (batting, excl. wides) or legal balls bowled
     runs                INTEGER NOT NULL,     -- Runs scored (batting) or conceded (bowling; excl. byes/leg-byes)
     wickets             INTEGER NOT NULL,     -- Dismissals (batting) or bowler-credited wickets (bowling)
@@ -160,20 +195,6 @@ CREATE TABLE fact_player_season_phase (
     PRIMARY KEY (player_key, season_key, role_type, phase_key)
 );
 
--- @table dim_player_phase_profile: SCD Type 2 history of each player's primary phase per role.
-CREATE TABLE dim_player_phase_profile (
-    profile_key         INTEGER PRIMARY KEY,  -- Surrogate key
-    player_key          INTEGER NOT NULL REFERENCES dim_player(player_key),  -- Player
-    role_type           TEXT NOT NULL CHECK (role_type IN ('batting', 'bowling')),  -- Role
-    primary_phase_key   INTEGER NOT NULL REFERENCES dim_phase(phase_key),  -- Primary phase for this spell
-    phase_index_value   REAL NOT NULL,        -- Primary-phase index in the season the spell opened
-    valid_from_season   INTEGER NOT NULL,     -- First qualifying season of the spell
-    valid_to_season     INTEGER,              -- Last qualifying season with this phase; NULL while current
-    last_seen_season    INTEGER NOT NULL,     -- Latest qualifying season covered by the spell
-    qualifying_seasons  INTEGER NOT NULL,     -- Number of qualifying seasons in the spell
-    is_current          INTEGER NOT NULL CHECK (is_current IN (0, 1)),  -- 1 for the open spell
-    threshold_balls     INTEGER NOT NULL      -- Qualification threshold used to build the spell
-);
 
 CREATE INDEX ix_fact_delivery_season_phase ON fact_delivery (season_key, phase_key);
 CREATE INDEX ix_fact_delivery_batter ON fact_delivery (batter_key);

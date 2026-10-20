@@ -10,31 +10,35 @@ dim_venue,Canonical venues.,canonical_name,TEXT,False,,,Canonical venue name (va
 dim_venue,Canonical venues.,city,TEXT,True,,,"City, filled from the venue mapping when missing"
 dim_player,Canonical players.,player_key,INTEGER,False,PK,,Surrogate key
 dim_player,Canonical players.,canonical_name,TEXT,False,,,Canonical player name (variants in map_player)
+dim_date,Calendar dimension; one row per match date.,date_key,INTEGER,False,PK,,Smart key yyyymmdd (e.g. 20240526)
+dim_date,Calendar dimension; one row per match date.,full_date,TEXT,False,,,ISO date yyyy-mm-dd
+dim_date,Calendar dimension; one row per match date.,year,INTEGER,False,,,Calendar year
+dim_date,Calendar dimension; one row per match date.,month,INTEGER,False,,,Month number
+dim_date,Calendar dimension; one row per match date.,month_name,TEXT,False,,,Month name (e.g. April)
+dim_date,Calendar dimension; one row per match date.,day_of_month,INTEGER,False,,,Day of the month
+dim_date,Calendar dimension; one row per match date.,day_name,TEXT,False,,,Day of the week (e.g. Saturday)
+dim_date,Calendar dimension; one row per match date.,is_weekend,INTEGER,False,,,1 for Saturday or Sunday
 dim_season,Seasons.,season_key,INTEGER,False,PK,,Surrogate key
 dim_season,Seasons.,year,INTEGER,False,,,Calendar year the season was played
 dim_phase,Innings phases (3 rows).,phase_key,INTEGER,False,PK,,"1 Powerplay, 2 Middle, 3 Death"
 dim_phase,Innings phases (3 rows).,phase_name,TEXT,False,,,Phase name
 dim_phase,Innings phases (3 rows).,start_over,INTEGER,False,,,First over of the phase (1-based)
 dim_phase,Innings phases (3 rows).,end_over,INTEGER,False,,,Last over of the phase (1-based)
-dim_match,Match dimension.,match_key,INTEGER,False,PK,,Surrogate key
-dim_match,Match dimension.,source_match_id,INTEGER,False,,,Match id in the source files
-dim_match,Match dimension.,season_key,INTEGER,False,FK,dim_season.season_key,Season
-dim_match,Match dimension.,match_date,TEXT,False,,,Match date (ISO yyyy-mm-dd)
-dim_match,Match dimension.,venue_key,INTEGER,False,FK,dim_venue.venue_key,Venue
-dim_match,Match dimension.,team1_key,INTEGER,False,FK,dim_team.team_key,Team listed first in the source
-dim_match,Match dimension.,team2_key,INTEGER,False,FK,dim_team.team_key,Team listed second in the source
-dim_match,Match dimension.,toss_winner_key,INTEGER,False,FK,dim_team.team_key,Toss winner
-dim_match,Match dimension.,toss_decision,TEXT,False,,,Toss decision
-dim_match,Match dimension.,match_status,TEXT,False,,,Match status
-dim_match,Match dimension.,result_type,TEXT,True,,,"runs, wickets, tie or no_result"
-dim_match,Match dimension.,result_margin,INTEGER,True,,,Winning margin in runs or wickets
-dim_match,Match dimension.,target_runs,INTEGER,True,,,Target set for the chasing side (source value)
-dim_match,Match dimension.,target_overs,REAL,True,,,Overs available to the chasing side (source value)
-dim_match,Match dimension.,is_super_over,INTEGER,False,,,1 if a Super Over was played
-dim_match,Match dimension.,is_dl_applied,INTEGER,False,,,1 if Duckworth-Lewis was applied (from raw `method`)
-dim_match,Match dimension.,player_of_match_key,INTEGER,True,FK,dim_player.player_key,Player of the match
+dim_match,"Match dimension; descriptive attributes only (season, venue, teams and players are foreign keys in the facts).",match_key,INTEGER,False,PK,,Surrogate key
+dim_match,"Match dimension; descriptive attributes only (season, venue, teams and players are foreign keys in the facts).",source_match_id,INTEGER,False,,,Match id in the source files
+dim_match,"Match dimension; descriptive attributes only (season, venue, teams and players are foreign keys in the facts).",match_date,TEXT,False,,,Match date (ISO yyyy-mm-dd); also date_key in the facts
+dim_match,"Match dimension; descriptive attributes only (season, venue, teams and players are foreign keys in the facts).",toss_decision,TEXT,False,,,Toss decision
+dim_match,"Match dimension; descriptive attributes only (season, venue, teams and players are foreign keys in the facts).",match_status,TEXT,False,,,Match status
+dim_match,"Match dimension; descriptive attributes only (season, venue, teams and players are foreign keys in the facts).",result_type,TEXT,True,,,"runs, wickets, tie or no_result"
+dim_match,"Match dimension; descriptive attributes only (season, venue, teams and players are foreign keys in the facts).",result_margin,INTEGER,True,,,Winning margin in runs or wickets
+dim_match,"Match dimension; descriptive attributes only (season, venue, teams and players are foreign keys in the facts).",target_runs,INTEGER,True,,,Target set for the chasing side (source value)
+dim_match,"Match dimension; descriptive attributes only (season, venue, teams and players are foreign keys in the facts).",target_overs,REAL,True,,,Overs available to the chasing side (source value)
+dim_match,"Match dimension; descriptive attributes only (season, venue, teams and players are foreign keys in the facts).",is_super_over,INTEGER,False,,,1 if a Super Over was played
+dim_match,"Match dimension; descriptive attributes only (season, venue, teams and players are foreign keys in the facts).",is_dl_applied,INTEGER,False,,,1 if Duckworth-Lewis was applied (from raw `method`)
 fact_delivery,Delivery-grain fact; one row per match x inning x delivery_seq.,match_key,INTEGER,False,"PK, FK",dim_match.match_key,Match
-fact_delivery,Delivery-grain fact; one row per match x inning x delivery_seq.,season_key,INTEGER,False,FK,dim_season.season_key,Season (denormalised from dim_match)
+fact_delivery,Delivery-grain fact; one row per match x inning x delivery_seq.,date_key,INTEGER,False,FK,dim_date.date_key,Match date
+fact_delivery,Delivery-grain fact; one row per match x inning x delivery_seq.,season_key,INTEGER,False,FK,dim_season.season_key,Season
+fact_delivery,Delivery-grain fact; one row per match x inning x delivery_seq.,venue_key,INTEGER,False,FK,dim_venue.venue_key,Venue
 fact_delivery,Delivery-grain fact; one row per match x inning x delivery_seq.,inning,INTEGER,False,PK,,Innings number; 3+ are Super Over innings
 fact_delivery,Delivery-grain fact; one row per match x inning x delivery_seq.,delivery_seq,INTEGER,False,PK,,Order of the delivery within the innings (source row order)
 fact_delivery,Delivery-grain fact; one row per match x inning x delivery_seq.,batting_team_key,INTEGER,False,FK,dim_team.team_key,Batting team
@@ -59,6 +63,7 @@ fact_delivery,Delivery-grain fact; one row per match x inning x delivery_seq.,is
 fact_delivery,Delivery-grain fact; one row per match x inning x delivery_seq.,is_boundary,INTEGER,False,,,1 if batsman_runs is 4 or 6
 fact_delivery,Delivery-grain fact; one row per match x inning x delivery_seq.,is_dot,INTEGER,False,,,1 for a legal ball with no runs
 fact_match_summary,"Match-grain aggregate fact; innings 1 = batting first, innings 2 = chasing.",match_key,INTEGER,False,PK,dim_match.match_key,Match
+fact_match_summary,"Match-grain aggregate fact; innings 1 = batting first, innings 2 = chasing.",date_key,INTEGER,False,FK,dim_date.date_key,Match date
 fact_match_summary,"Match-grain aggregate fact; innings 1 = batting first, innings 2 = chasing.",season_key,INTEGER,False,FK,dim_season.season_key,Season
 fact_match_summary,"Match-grain aggregate fact; innings 1 = batting first, innings 2 = chasing.",venue_key,INTEGER,False,FK,dim_venue.venue_key,Venue
 fact_match_summary,"Match-grain aggregate fact; innings 1 = batting first, innings 2 = chasing.",bat_first_team_key,INTEGER,False,FK,dim_team.team_key,Team batting first
@@ -85,14 +90,29 @@ fact_match_summary,"Match-grain aggregate fact; innings 1 = batting first, innin
 fact_match_summary,"Match-grain aggregate fact; innings 1 = batting first, innings 2 = chasing.",inn2_wickets,INTEGER,True,,,Innings 2 wickets
 fact_match_summary,"Match-grain aggregate fact; innings 1 = batting first, innings 2 = chasing.",inn2_legal_balls,INTEGER,True,,,Innings 2 legal balls
 fact_match_summary,"Match-grain aggregate fact; innings 1 = batting first, innings 2 = chasing.",winner_key,INTEGER,True,FK,dim_team.team_key,Winner; NULL for no result or undecided tie
+fact_match_summary,"Match-grain aggregate fact; innings 1 = batting first, innings 2 = chasing.",player_of_match_key,INTEGER,True,FK,dim_player.player_key,Player of the match; NULL when not awarded
 fact_match_summary,"Match-grain aggregate fact; innings 1 = batting first, innings 2 = chasing.",result_type,TEXT,True,,,"runs, wickets, tie or no_result"
 fact_match_summary,"Match-grain aggregate fact; innings 1 = batting first, innings 2 = chasing.",match_status,TEXT,False,,,"completed, tie or no_result"
 fact_match_summary,"Match-grain aggregate fact; innings 1 = batting first, innings 2 = chasing.",bat_first_won,INTEGER,True,,,ML target: 1 if the team batting first won; NULL without a winner
 fact_match_summary,"Match-grain aggregate fact; innings 1 = batting first, innings 2 = chasing.",ml_eligible,INTEGER,False,,,"1 if completed, no Super Over, no D/L, both innings present"
+dim_player_phase_profile,SCD Type 2 dimension of each player's primary phase per role; one row per spell (player_key is the durable key).,profile_key,INTEGER,False,PK,,Surrogate key (one per spell)
+dim_player_phase_profile,SCD Type 2 dimension of each player's primary phase per role; one row per spell (player_key is the durable key).,player_key,INTEGER,False,,,Durable key of the player (same value as in dim_player)
+dim_player_phase_profile,SCD Type 2 dimension of each player's primary phase per role; one row per spell (player_key is the durable key).,player_name,TEXT,False,,,Player name
+dim_player_phase_profile,SCD Type 2 dimension of each player's primary phase per role; one row per spell (player_key is the durable key).,role_type,TEXT,False,,,Role
+dim_player_phase_profile,SCD Type 2 dimension of each player's primary phase per role; one row per spell (player_key is the durable key).,primary_phase_key,INTEGER,False,,,"Primary phase for this spell (1 Powerplay, 2 Middle, 3 Death)"
+dim_player_phase_profile,SCD Type 2 dimension of each player's primary phase per role; one row per spell (player_key is the durable key).,primary_phase,TEXT,False,,,Primary phase name
+dim_player_phase_profile,SCD Type 2 dimension of each player's primary phase per role; one row per spell (player_key is the durable key).,phase_index_value,REAL,False,,,Primary-phase index in the season the spell opened
+dim_player_phase_profile,SCD Type 2 dimension of each player's primary phase per role; one row per spell (player_key is the durable key).,valid_from_season,INTEGER,False,,,First qualifying season of the spell
+dim_player_phase_profile,SCD Type 2 dimension of each player's primary phase per role; one row per spell (player_key is the durable key).,valid_to_season,INTEGER,True,,,Last qualifying season with this phase; NULL while current
+dim_player_phase_profile,SCD Type 2 dimension of each player's primary phase per role; one row per spell (player_key is the durable key).,last_seen_season,INTEGER,False,,,Latest qualifying season covered by the spell
+dim_player_phase_profile,SCD Type 2 dimension of each player's primary phase per role; one row per spell (player_key is the durable key).,qualifying_seasons,INTEGER,False,,,Number of qualifying seasons in the spell
+dim_player_phase_profile,SCD Type 2 dimension of each player's primary phase per role; one row per spell (player_key is the durable key).,is_current,INTEGER,False,,,1 for the open spell
+dim_player_phase_profile,SCD Type 2 dimension of each player's primary phase per role; one row per spell (player_key is the durable key).,threshold_balls,INTEGER,False,,,Qualification threshold used to build the spell
 fact_player_season_phase,Aggregate fact; one row per player x season x role_type x phase (regular innings only).,player_key,INTEGER,False,"PK, FK",dim_player.player_key,Player
 fact_player_season_phase,Aggregate fact; one row per player x season x role_type x phase (regular innings only).,season_key,INTEGER,False,"PK, FK",dim_season.season_key,Season
 fact_player_season_phase,Aggregate fact; one row per player x season x role_type x phase (regular innings only).,role_type,TEXT,False,PK,,Role
 fact_player_season_phase,Aggregate fact; one row per player x season x role_type x phase (regular innings only).,phase_key,INTEGER,False,"PK, FK",dim_phase.phase_key,Phase
+fact_player_season_phase,Aggregate fact; one row per player x season x role_type x phase (regular innings only).,profile_key,INTEGER,True,FK,dim_player_phase_profile.profile_key,SCD2 spell in force that season; NULL outside a spell
 fact_player_season_phase,Aggregate fact; one row per player x season x role_type x phase (regular innings only).,balls,INTEGER,False,,,"Balls faced (batting, excl. wides) or legal balls bowled"
 fact_player_season_phase,Aggregate fact; one row per player x season x role_type x phase (regular innings only).,runs,INTEGER,False,,,Runs scored (batting) or conceded (bowling; excl. byes/leg-byes)
 fact_player_season_phase,Aggregate fact; one row per player x season x role_type x phase (regular innings only).,wickets,INTEGER,False,,,Dismissals (batting) or bowler-credited wickets (bowling)
@@ -106,14 +126,3 @@ fact_player_season_phase,Aggregate fact; one row per player x season x role_type
 fact_player_season_phase,Aggregate fact; one row per player x season x role_type x phase (regular innings only).,phase_index,REAL,False,,,phase_share / league_phase_share
 fact_player_season_phase,Aggregate fact; one row per player x season x role_type x phase (regular innings only).,qualifies,INTEGER,False,,,1 if season_balls >= qualification threshold
 fact_player_season_phase,Aggregate fact; one row per player x season x role_type x phase (regular innings only).,is_primary_phase,INTEGER,False,,,1 for the phase with the highest phase_index (qualifying seasons only)
-dim_player_phase_profile,SCD Type 2 history of each player's primary phase per role.,profile_key,INTEGER,False,PK,,Surrogate key
-dim_player_phase_profile,SCD Type 2 history of each player's primary phase per role.,player_key,INTEGER,False,FK,dim_player.player_key,Player
-dim_player_phase_profile,SCD Type 2 history of each player's primary phase per role.,role_type,TEXT,False,,,Role
-dim_player_phase_profile,SCD Type 2 history of each player's primary phase per role.,primary_phase_key,INTEGER,False,FK,dim_phase.phase_key,Primary phase for this spell
-dim_player_phase_profile,SCD Type 2 history of each player's primary phase per role.,phase_index_value,REAL,False,,,Primary-phase index in the season the spell opened
-dim_player_phase_profile,SCD Type 2 history of each player's primary phase per role.,valid_from_season,INTEGER,False,,,First qualifying season of the spell
-dim_player_phase_profile,SCD Type 2 history of each player's primary phase per role.,valid_to_season,INTEGER,True,,,Last qualifying season with this phase; NULL while current
-dim_player_phase_profile,SCD Type 2 history of each player's primary phase per role.,last_seen_season,INTEGER,False,,,Latest qualifying season covered by the spell
-dim_player_phase_profile,SCD Type 2 history of each player's primary phase per role.,qualifying_seasons,INTEGER,False,,,Number of qualifying seasons in the spell
-dim_player_phase_profile,SCD Type 2 history of each player's primary phase per role.,is_current,INTEGER,False,,,1 for the open spell
-dim_player_phase_profile,SCD Type 2 history of each player's primary phase per role.,threshold_balls,INTEGER,False,,,Qualification threshold used to build the spell

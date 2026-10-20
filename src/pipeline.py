@@ -73,7 +73,10 @@ def run(
         season_years = tables["dim_season"].set_index("season_key")["year"]
         _say("E10 SCD2 player phase profile")
         primaries = scd2.season_primaries(tables["fact_player_season_phase"], season_years)
-        tables["dim_player_phase_profile"] = scd2.build_profile(primaries, threshold)
+        profile = scd2.build_profile(primaries, threshold)
+        tables["dim_player_phase_profile"] = scd2.describe(profile, tables["dim_player"], tables["dim_phase"])
+        tables["fact_player_season_phase"] = scd2.link_fact(tables["fact_player_season_phase"], profile,
+                                                            season_years)
         create_schema(conn)
         counts = load_warehouse(conn, tables)
         for name, n in counts.items():

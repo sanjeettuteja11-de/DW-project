@@ -100,7 +100,7 @@ def build(paths: Paths) -> dict[str, pd.DataFrame]:
             JOIN dim_team tc ON tc.team_key = s.chase_team_key
             JOIN dim_team tt ON tt.team_key = s.toss_winner_key
             LEFT JOIN dim_team tw ON tw.team_key = s.winner_key
-            LEFT JOIN dim_player pl ON pl.player_key = m.player_of_match_key
+            LEFT JOIN dim_player pl ON pl.player_key = s.player_of_match_key
             ORDER BY m.match_date, m.source_match_id""")
         bins = [-99, -3, -1.5, -0.5, 0.5, 1.5, 3, 99]
         labels = ["< -3", "-3 to -1.5", "-1.5 to -0.5", "-0.5 to 0.5", "0.5 to 1.5", "1.5 to 3", "> 3"]
@@ -122,13 +122,12 @@ def build(paths: Paths) -> dict[str, pd.DataFrame]:
         team_matches = pd.concat(tm, ignore_index=True)
 
         innings_phase = _q(conn, """
-            SELECT f.match_key, f.season_key, m.venue_key, f.inning, f.phase_key,
+            SELECT f.match_key, f.season_key, f.venue_key, f.inning, f.phase_key,
                    tb.franchise_id AS batting_franchise, tw.franchise_id AS bowling_franchise,
                    SUM(f.total_runs) AS runs, SUM(f.is_legal_for_bowler) AS legal_balls,
                    SUM(f.is_wicket) AS wickets, SUM(f.is_boundary) AS boundaries,
                    SUM(f.is_dot) AS dots, SUM(f.is_faced_by_batter) AS balls_faced
             FROM fact_delivery f
-            JOIN dim_match m USING (match_key)
             JOIN dim_team tb ON tb.team_key = f.batting_team_key
             JOIN dim_team tw ON tw.team_key = f.bowling_team_key
             WHERE f.phase_key IS NOT NULL

@@ -48,9 +48,12 @@ def _result(gate, failures, detail, skip=False) -> GateResult:
 
 
 FOREIGN_KEYS = [
-    # (fact table, column, dimension, dimension key, nullable)
+    # (fact table, column, dimension, dimension key, nullable). Every key runs fact -> dimension.
     ("fact_delivery", "match_key", "dim_match", "match_key", False),
+    ("fact_delivery", "date_key", "dim_date", "date_key", False),
     ("fact_delivery", "season_key", "dim_season", "season_key", False),
+    ("fact_delivery", "venue_key", "dim_venue", "venue_key", False),
+    ("fact_delivery", "phase_key", "dim_phase", "phase_key", True),
     ("fact_delivery", "batting_team_key", "dim_team", "team_key", False),
     ("fact_delivery", "bowling_team_key", "dim_team", "team_key", False),
     ("fact_delivery", "batter_key", "dim_player", "player_key", False),
@@ -58,25 +61,19 @@ FOREIGN_KEYS = [
     ("fact_delivery", "non_striker_key", "dim_player", "player_key", False),
     ("fact_delivery", "player_dismissed_key", "dim_player", "player_key", True),
     ("fact_delivery", "fielder_key", "dim_player", "player_key", True),
-    ("fact_delivery", "phase_key", "dim_phase", "phase_key", True),
     ("fact_match_summary", "match_key", "dim_match", "match_key", False),
+    ("fact_match_summary", "date_key", "dim_date", "date_key", False),
     ("fact_match_summary", "season_key", "dim_season", "season_key", False),
     ("fact_match_summary", "venue_key", "dim_venue", "venue_key", False),
     ("fact_match_summary", "bat_first_team_key", "dim_team", "team_key", False),
     ("fact_match_summary", "chase_team_key", "dim_team", "team_key", False),
     ("fact_match_summary", "toss_winner_key", "dim_team", "team_key", False),
     ("fact_match_summary", "winner_key", "dim_team", "team_key", True),
+    ("fact_match_summary", "player_of_match_key", "dim_player", "player_key", True),
     ("fact_player_season_phase", "player_key", "dim_player", "player_key", False),
     ("fact_player_season_phase", "season_key", "dim_season", "season_key", False),
     ("fact_player_season_phase", "phase_key", "dim_phase", "phase_key", False),
-    ("dim_match", "season_key", "dim_season", "season_key", False),
-    ("dim_match", "venue_key", "dim_venue", "venue_key", False),
-    ("dim_match", "team1_key", "dim_team", "team_key", False),
-    ("dim_match", "team2_key", "dim_team", "team_key", False),
-    ("dim_match", "toss_winner_key", "dim_team", "team_key", False),
-    ("dim_match", "player_of_match_key", "dim_player", "player_key", True),
-    ("dim_player_phase_profile", "player_key", "dim_player", "player_key", False),
-    ("dim_player_phase_profile", "primary_phase_key", "dim_phase", "phase_key", False),
+    ("fact_player_season_phase", "profile_key", "dim_player_phase_profile", "profile_key", True),
 ]
 
 
@@ -165,7 +162,7 @@ def g6(conn, ctx) -> GateResult:
 def g7(conn, ctx) -> GateResult:
     n = _scalar(conn, """
         SELECT COUNT(*) FROM dim_match m JOIN fact_match_summary s USING (match_key)
-        WHERE (s.winner_key IS NOT NULL AND s.winner_key NOT IN (m.team1_key, m.team2_key))
+        WHERE (s.winner_key IS NOT NULL AND s.winner_key NOT IN (s.bat_first_team_key, s.chase_team_key))
            OR (s.winner_key IS NULL AND m.match_status NOT IN ('no_result', 'tie'))""")
     return _result("G7", n, f"{n} matches with an invalid winner")
 

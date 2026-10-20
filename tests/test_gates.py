@@ -26,7 +26,8 @@ def test_g4_unexplained_target(db_copy):
 def test_g5_too_many_legal_balls(db_copy):
     db_copy.execute("""UPDATE fact_delivery SET is_legal_for_bowler = 1
                        WHERE match_key = 1 AND inning = 1""")
-    db_copy.execute("""INSERT INTO fact_delivery SELECT match_key, season_key, inning, delivery_seq + 1000,
+    db_copy.execute("""INSERT INTO fact_delivery SELECT match_key, date_key, season_key, venue_key, inning,
+                           delivery_seq + 1000,
                        batting_team_key, bowling_team_key, batter_key, bowler_key, non_striker_key,
                        player_dismissed_key, fielder_key, phase_key, over, ball, batsman_runs, extra_runs,
                        total_runs, extras_type, is_wicket, dismissal_kind, is_super_over_innings,
@@ -40,7 +41,8 @@ def test_g5_seven_ball_over_is_an_explained_exception(db_copy, tmp_path):
     mk, inn, ov = db_copy.execute("""SELECT match_key, inning, over FROM fact_delivery
                                      WHERE is_super_over_innings = 0 GROUP BY 1, 2, 3
                                      HAVING SUM(is_legal_for_bowler) = 6 LIMIT 1""").fetchone()
-    db_copy.execute("""INSERT INTO fact_delivery SELECT match_key, season_key, inning, delivery_seq + 1000,
+    db_copy.execute("""INSERT INTO fact_delivery SELECT match_key, date_key, season_key, venue_key, inning,
+                           delivery_seq + 1000,
                        batting_team_key, bowling_team_key, batter_key, bowler_key, non_striker_key,
                        NULL, NULL, phase_key, over, 7, 0, 0, 0, 'none', 0, 'none', 0, 1, 1, 0, 1
                        FROM fact_delivery WHERE match_key = ? AND inning = ? AND over = ? LIMIT 1""",
@@ -53,16 +55,16 @@ def test_g5_seven_ball_over_is_an_explained_exception(db_copy, tmp_path):
 def test_g7_winner_not_a_participant(db_copy):
     db_copy.execute("""UPDATE fact_match_summary SET winner_key = (
                            SELECT team_key FROM dim_team WHERE team_key NOT IN (
-                               SELECT team1_key FROM dim_match WHERE match_key = 1
-                               UNION SELECT team2_key FROM dim_match WHERE match_key = 1) LIMIT 1)
+                               SELECT bat_first_team_key FROM fact_match_summary WHERE match_key = 1
+                               UNION SELECT chase_team_key FROM fact_match_summary WHERE match_key = 1) LIMIT 1)
                        WHERE match_key = 1""")
     assert status(db_copy, "G7") == "FAIL"
 
 
 def test_g8_two_current_rows(db_copy):
     db_copy.execute("""INSERT INTO dim_player_phase_profile
-                       SELECT profile_key + 100000, player_key, role_type, primary_phase_key,
-                              phase_index_value, valid_from_season + 1, NULL, last_seen_season,
+                       SELECT profile_key + 100000, player_key, player_name, role_type, primary_phase_key,
+                              primary_phase, phase_index_value, valid_from_season + 1, NULL, last_seen_season,
                               qualifying_seasons, 1, threshold_balls
                        FROM dim_player_phase_profile WHERE is_current = 1 LIMIT 1""")
     assert status(db_copy, "G8") == "FAIL"

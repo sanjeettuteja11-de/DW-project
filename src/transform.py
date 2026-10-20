@@ -25,6 +25,25 @@ def _rate(num, den, mult):
 
 # ------------------------------------------------------------------ E7 dimensions
 
+def date_key(dates: pd.Series) -> pd.Series:
+    """Smart date key yyyymmdd from ISO date strings."""
+    return dates.str.replace("-", "", regex=False).astype(int)
+
+
+def dim_date(matches) -> pd.DataFrame:
+    d = pd.to_datetime(pd.Series(sorted(matches["match_date"].dropna().unique())))
+    return pd.DataFrame({
+        "date_key": d.dt.strftime("%Y%m%d").astype(int),
+        "full_date": d.dt.strftime("%Y-%m-%d"),
+        "year": d.dt.year,
+        "month": d.dt.month,
+        "month_name": d.dt.strftime("%B"),
+        "day_of_month": d.dt.day,
+        "day_name": d.dt.strftime("%A"),
+        "is_weekend": (d.dt.dayofweek >= 5).astype(int),
+    })
+
+
 def dim_season(matches) -> pd.DataFrame:
     return _keys(matches["season_year"], "season_key").rename(columns={"value": "year"})
 
@@ -72,7 +91,14 @@ def dim_player(matches, deliveries) -> pd.DataFrame:
         columns={"value": "canonical_name"})
 
 
-def dim_match(matches, dims) -> pd.DataFrame:
+# Columns of the dim_match table; the other columns of the match lookup become foreign keys in the facts.
+DIM_MATCH_COLUMNS = ["match_key", "source_match_id", "match_date", "toss_decision", "match_status",
+                     "result_type", "result_margin", "target_runs", "target_overs", "is_super_over",
+                     "is_dl_applied"]
+
+
+def match_lookup(matches, dims) -> pd.DataFrame:
+    """Every match with its surrogate key and the keys of its season, venue, teams and players."""
     team = dims["team"].set_index("canonical_name")["team_key"]
     m = matches.sort_values(["match_date", "match_id"]).reset_index(drop=True)
     return pd.DataFrame({
@@ -109,11 +135,13 @@ def phase_of(over: pd.Series) -> pd.Series:
 def fact_delivery(deliveries, dims) -> pd.DataFrame:
     team = dims["team"].set_index("canonical_name")["team_key"]
     player = dims["player"].set_index("canonical_name")["player_key"]
-    match = dims["match"].set_index("source_match_id")[["match_key", "season_key"]]
+    match = dims["match"].set_index("source_match_id")[["match_key", "season_key", "venue_key", "match_date"]]
     d = deliveries
     f = pd.DataFrame({
         "match_key": d["match_id"].map(match["match_key"]),
+        "date_key": date_key(d["match_id"].map(match["match_date"])),
         "season_key": d["match_id"].map(match["season_key"]),
+        "venue_key": d["match_id"].map(match["venue_key"]),
         "inning": d["inning"],
         "delivery_seq": d["delivery_seq"],
         "batting_team_key": d["batting_team"].map(team),
@@ -160,7 +188,8 @@ def fact_match_summary(matches, dims, fd) -> pd.DataFrame:
     inn = _innings_stats(fd)
     out = dm[["match_key", "season_key", "venue_key", "toss_winner_key", "toss_decision",
               "match_status", "result_type", "is_super_over", "is_dl_applied",
-              "team1_key", "team2_key"]].copy()
+              "team1_key", "team2_key", "player_of_match_key"]].copy()
+    out["date_key"] = date_key(dm["match_date"])
     out["winner_key"] = winner.astype("Int64")
 
     stat_cols = ["pp_runs", "pp_wickets", "pp_legal_balls", "pp_boundaries", "pp_dot_pct",
@@ -183,12 +212,12 @@ def fact_match_summary(matches, dims, fd) -> pd.DataFrame:
         (out.match_status == "completed") & (out.is_super_over == 0) & (out.is_dl_applied == 0)
         & out.winner_key.notna() & out.inn1_legal_balls.notna() & out.inn2_legal_balls.notna()
     ).astype(int)
-    cols = ["match_key", "season_key", "venue_key", "bat_first_team_key", "chase_team_key",
+    cols = ["match_key", "date_key", "season_key", "venue_key", "bat_first_team_key", "chase_team_key",
             "toss_winner_key", "toss_decision", "toss_winner_bat_first"]
     cols += [f"inn{i}_{c}" for i in (1, 2) for c in
              ("pp_runs", "pp_wickets", "pp_legal_balls", "pp_boundaries", "pp_dot_pct", "pp_run_rate",
               "total_runs", "wickets", "legal_balls")]
-    cols += ["winner_key", "result_type", "match_status", "bat_first_won", "ml_eligible"]
+    cols += ["winner_key", "player_of_match_key", "result_type", "match_status", "bat_first_won", "ml_eligible"]
     return out[cols]
 
 
@@ -261,15 +290,16 @@ def build(clean: CleanResult, threshold: int = QUALIFY_BALLS) -> dict[str, pd.Da
         "venue": dim_venue(m, clean.venue_map),
         "player": dim_player(m, d),
     }
-    dims["match"] = dim_match(m, dims)
+    dims["match"] = match_lookup(m, dims)
     fd = fact_delivery(d, dims)
     return {
+        "dim_date": dim_date(m),
         "dim_season": dims["season"],
         "dim_phase": dims["phase"],
         "dim_team": dims["team"],
         "dim_venue": dims["venue"],
         "dim_player": dims["player"],
-        "dim_match": dims["match"],
+        "dim_match": dims["match"][DIM_MATCH_COLUMNS],
         "fact_delivery": fd,
         "fact_match_summary": fact_match_summary(m, dims, fd),
         "fact_player_season_phase": fact_player_season_phase(fd, threshold),

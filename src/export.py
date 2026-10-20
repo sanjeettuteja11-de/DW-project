@@ -10,7 +10,7 @@ from .config import Paths
 
 VIEWS = ["v_league_phase_rates", "v_team_phase_profile", "v_venue_profile", "v_player_phase_profile",
          "v_match_phase"]
-TABLES = ["dim_team", "dim_venue", "dim_player", "dim_season", "dim_phase", "dim_match",
+TABLES = ["dim_date", "dim_team", "dim_venue", "dim_player", "dim_season", "dim_phase", "dim_match",
           "fact_match_summary", "fact_player_season_phase", "dim_player_phase_profile"]
 
 

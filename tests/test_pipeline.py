@@ -140,3 +140,26 @@ def test_unmapped_team_stops_the_run(tmp_path):
     assert report.set_index("gate").status["G6"] == "FAIL"
     unmapped = pd.read_csv(paths.logs / "unmapped_entities.csv")
     assert "Mystery XI" in set(unmapped.raw_value)
+
+
+def test_star_schema_has_no_snowflaking():
+    """Every foreign key runs from a fact table to a dimension; no dimension references another table."""
+    import re
+    from src.config import SQL_DIR
+    ddl = (SQL_DIR / "ddl.sql").read_text()
+    for name, body in re.findall(r"CREATE TABLE (\w+) \((.*?)\n\);", ddl, re.S):
+        if name.startswith("dim_"):
+            assert "REFERENCES" not in body, f"{name} references another table"
+        else:
+            assert re.findall(r"REFERENCES (\w+)\(", body), f"{name} has no dimensions"
+            assert all(t.startswith("dim_") for t in re.findall(r"REFERENCES (\w+)\(", body))
+
+
+def test_scd2_spell_is_linked_to_the_fact(db):
+    f = pd.read_sql("""SELECT f.qualifies, f.is_primary_phase, f.phase_key, p.primary_phase_key, f.profile_key
+                       FROM fact_player_season_phase f
+                       LEFT JOIN dim_player_phase_profile p USING (profile_key)""", db)
+    q = f[f.qualifies == 1]
+    assert q.profile_key.notna().all()
+    prim = q[q.is_primary_phase == 1]
+    assert (prim.phase_key == prim.primary_phase_key).all()

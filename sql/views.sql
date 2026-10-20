@@ -87,7 +87,7 @@ SELECT m.source_match_id, se.year AS season, v.canonical_name AS venue, t.franch
 FROM fact_delivery f
 JOIN dim_match m ON m.match_key = f.match_key
 JOIN dim_season se ON se.season_key = f.season_key
-JOIN dim_venue v ON v.venue_key = m.venue_key
+JOIN dim_venue v ON v.venue_key = f.venue_key
 JOIN dim_team t ON t.team_key = f.batting_team_key
 JOIN dim_phase ph ON ph.phase_key = f.phase_key
 GROUP BY m.source_match_id, se.year, v.canonical_name, t.franchise_id, t.canonical_name, f.inning,

@@ -488,8 +488,21 @@ changes that cricket followers already know about, which gives us some confidenc
     md(r"""
 ## 5. Loading and storage
 
-The wrangled data is loaded into **SQLite** (`db/ipl_dw.sqlite`) as a star schema with three fact
-tables at different grains and seven dimensions, plus analysis views and CSV exports.
+The wrangled data is loaded into **SQLite** (`db/ipl_dw.sqlite`) as a star schema: three fact tables
+at three grains share eight conformed dimensions, plus analysis views and CSV exports.
+
+| Fact table | Grain | Dimensions (foreign keys) |
+|---|---|---|
+| `fact_delivery` | one ball | date, season, venue, match, phase, team ×2 (batting, bowling), player ×5 (batter, bowler, non-striker, dismissed, fielder) |
+| `fact_match_summary` | one match | date, season, venue, match, team ×4 (batting first, chasing, toss winner, winner), player (player of the match) |
+| `fact_player_season_phase` | player × season × role × phase | player, season, phase, player phase profile (the SCD Type 2 spell in force that season) |
+
+Design rules: every foreign key runs from a fact to a dimension and **no dimension references another**
+(no snowflaking), so any question is one join per dimension. `dim_date` is the calendar dimension (one row
+per match date, smart key yyyymmdd). `dim_match` holds only descriptive match attributes (status, result,
+margin, target, Super Over, D/L); the match's season, venue, teams and players are keys in the facts.
+`dim_team` and `dim_player` are role-playing dimensions. `dim_player_phase_profile` is SCD Type 2 (one row
+per spell, `player_key` as the durable key) and is joined to the player-season fact through `profile_key`.
 """),
     code(r"""
 from src import dictionary, erd

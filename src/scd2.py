@@ -67,6 +67,32 @@ def build_profile(primaries: pd.DataFrame, threshold: int = QUALIFY_BALLS) -> pd
     return df[cols]
 
 
+def describe(profile: pd.DataFrame, players: pd.DataFrame, phases: pd.DataFrame) -> pd.DataFrame:
+    """Add the player and phase names, so the SCD2 dimension needs no join to other dimensions."""
+    out = profile.copy()
+    out.insert(2, "player_name", out["player_key"].map(players.set_index("player_key")["canonical_name"]))
+    out.insert(5, "primary_phase", out["primary_phase_key"].map(phases.set_index("phase_key")["phase_name"]))
+    return out
+
+
+def link_fact(fpsp: pd.DataFrame, profile: pd.DataFrame, season_years: pd.Series) -> pd.DataFrame:
+    """Put the surrogate key of the spell in force into each fact row (NULL outside any spell).
+
+    A closed spell covers valid_from_season to valid_to_season; the current spell is open-ended
+    (valid_to_season NULL). Seasons before a player's first spell, and gaps between a closed spell
+    and the next one, have no spell in force.
+    """
+    f = fpsp.drop(columns="profile_key", errors="ignore").copy()
+    season = f["season_key"].map(season_years).astype(int)
+    f["profile_key"] = pd.array([pd.NA] * len(f), dtype="Int64")
+    end = profile["valid_to_season"].fillna(9999).astype(int)
+    for spell, start, stop in zip(profile.itertuples(index=False), profile["valid_from_season"], end):
+        hit = ((f["player_key"] == spell.player_key) & (f["role_type"] == spell.role_type)
+               & (season >= start) & (season <= stop))
+        f.loc[hit, "profile_key"] = spell.profile_key
+    return f
+
+
 def drift_table(profile: pd.DataFrame, fpsp: pd.DataFrame, season_years: pd.Series,
                 players: pd.DataFrame, phases: pd.DataFrame) -> pd.DataFrame:
     """Each change of primary phase, with the indices of both phases in both seasons."""
