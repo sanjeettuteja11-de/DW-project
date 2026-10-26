@@ -131,7 +131,6 @@ MEASURES = [
     ("InningsPhase", "PP RR First Season", "VAR s = MIN ( Season[season] ) RETURN CALCULATE ( [PP Run Rate], Season[season] = s )", "0.00", "Scoring"),
     ("InningsPhase", "PP RR Last Season", "VAR s = MAX ( Season[season] ) RETURN CALCULATE ( [PP Run Rate], Season[season] = s )", "0.00", "Scoring"),
     ("InningsPhase", "Death Run Rate", "CALCULATE ( [Run Rate], Phase[phase] = \"Death\" )", "0.00", "Scoring"),
-    ("InningsPhase", "Death Run Rate", "CALCULATE ( [Run Rate], Phase[phase] = \"Death\" )", "0.00", "Scoring"),
     ("InningsPhase", "PP RR Change", "DIVIDE ( [PP RR Last Season], [PP RR First Season] ) - 1", "+0%;-0%;0%", "Scoring"),
 
     ("Season", "Season Range", "VAR a = MIN ( Season[season] ) VAR b = MAX ( Season[season] ) RETURN IF ( a = b, FORMAT ( a, \"0\" ), FORMAT ( a, \"0\" ) & \"–\" & FORMAT ( b, \"0\" ) )", None, "Labels"),

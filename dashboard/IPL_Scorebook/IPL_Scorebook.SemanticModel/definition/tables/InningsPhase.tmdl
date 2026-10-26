@@ -56,11 +56,6 @@ table InningsPhase
 		displayFolder: Scoring
 		lineageTag: 74fe9b3a-8101-5d6c-b85d-042fa2aa76ed
 
-	measure 'Death Run Rate' = CALCULATE ( [Run Rate], Phase[phase] = "Death" )
-		formatString: 0.00
-		displayFolder: Scoring
-		lineageTag: 74fe9b3a-8101-5d6c-b85d-042fa2aa76ed
-
 	measure 'PP RR Change' = DIVIDE ( [PP RR Last Season], [PP RR First Season] ) - 1
 		formatString: +0%;-0%;0%
 		displayFolder: Scoring
