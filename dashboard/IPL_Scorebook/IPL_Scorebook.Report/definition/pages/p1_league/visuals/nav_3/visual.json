@@ -41,7 +41,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Model'"
+                  "Value": "'Teams'"
                 }
               }
             },
@@ -233,7 +233,7 @@
             "navigationSection": {
               "expr": {
                 "Literal": {
-                  "Value": "'p3_model'"
+                  "Value": "'p3_teams'"
                 }
               }
             }

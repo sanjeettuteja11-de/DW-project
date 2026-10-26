@@ -130,6 +130,8 @@ MEASURES = [
     ("InningsPhase", "PP Dot %", "CALCULATE ( [Dot %], Phase[phase] = \"Powerplay\" )", "0.0%", "Scoring"),
     ("InningsPhase", "PP RR First Season", "VAR s = MIN ( Season[season] ) RETURN CALCULATE ( [PP Run Rate], Season[season] = s )", "0.00", "Scoring"),
     ("InningsPhase", "PP RR Last Season", "VAR s = MAX ( Season[season] ) RETURN CALCULATE ( [PP Run Rate], Season[season] = s )", "0.00", "Scoring"),
+    ("InningsPhase", "Death Run Rate", "CALCULATE ( [Run Rate], Phase[phase] = \"Death\" )", "0.00", "Scoring"),
+    ("InningsPhase", "Death Run Rate", "CALCULATE ( [Run Rate], Phase[phase] = \"Death\" )", "0.00", "Scoring"),
     ("InningsPhase", "PP RR Change", "DIVIDE ( [PP RR Last Season], [PP RR First Season] ) - 1", "+0%;-0%;0%", "Scoring"),
 
     ("Season", "Season Range", "VAR a = MIN ( Season[season] ) VAR b = MAX ( Season[season] ) RETURN IF ( a = b, FORMAT ( a, \"0\" ), FORMAT ( a, \"0\" ) & \"–\" & FORMAT ( b, \"0\" ) )", None, "Labels"),
@@ -584,7 +586,7 @@ KICK = "THE IPL SCOREBOOK  ·  2008–2024"
 FOOT = ("Data: Cricsheet ball-by-ball records via Kaggle (IPL Complete Dataset 2008–2024, v3): 1,095 matches, "
         "260,920 deliveries, cleaned into the project warehouse ipl_dw.sqlite. Run rate = runs × 6 ÷ legal balls. "
         "Phases: Powerplay overs 1–6, Middle 7–15, Death 16–20.")
-PAGES = [("p1_league", "League"), ("p2_players", "Players"), ("p3_model", "Model")]
+PAGES = [("p1_league", "League"), ("p2_players", "Players"), ("p3_teams", "Teams")]
 
 
 def header(p: Page, idx: int, headline: str, dek: str) -> None:
@@ -866,6 +868,69 @@ def page_model() -> Page:
     return p
 
 
+def page_teams() -> Page:
+    p = Page("p3_teams", "Teams")
+    header(p, 3, "Chasing wins, but not for everyone.",
+           "Across 1,055 decided matches the chasing side won 54%. Gujarat Titans have the best record of the "
+           "current franchises (62%), Punjab Kings the worst (46%). Pick seasons or a franchise on the right.")
+    p.add("slicer_season", 900, 40, 170, 84, slicer("Season", "season", "Between", "Seasons"))
+    p.add("slicer_franchise", 1086, 40, 170, 62, slicer("Franchise", "latest_name", "Dropdown", "Franchise",
+                                                         search=True))
+    stat_row(p, [
+        ("Matches", "Chase Win %", "of decided matches won by the chasing side", PP),
+        ("Matches", "Avg First-Innings Score", "average first-innings score", INK),
+        ("Matches", "Match Count", "matches", INK),
+        ("Matches", "200+ Totals", "innings of 200 or more", INK),
+    ])
+    active = [{"name": "active_only", "field": col("Franchise", "active"), "type": "Categorical",
+               "filter": in_filter("Franchise", "active", ["1L"])["filter"]}]
+    p.add("chase_by_season", 24, 220, 600, 232, chart(
+        "columnChart",
+        {"Category": [proj(col("Season", "season"), active=True)],
+         "Y": [proj(mea("Matches", "Chase Win %"), name="Chasing side won")]},
+        "Chasing side's win rate, every season",
+        "Above the dashed line, chasing won more often than defending.",
+        {**axes(value_show=False, grid=False), **labels(size=7), **single_colour(OCHRE), **ref_line(0.5)}))
+    role = col("TeamMatches", "role")
+    p.add("team_win", 644, 220, 612, 232, chart(
+        "clusteredBarChart",
+        {"Category": [proj(col("Franchise", "latest_name"), name="Franchise", active=True)],
+         "Y": [proj(mea("TeamMatches", "Team Win %"), name="Win %")],
+         "Series": [proj(role, name="Batting")]},
+        "Win rate by franchise, batting first vs chasing",
+        "Current franchises, all their seasons.",
+        {**axes(cat_type=None, value_show=False, grid=False), **labels(size=7), **legend(),
+         "dataPoint": [{"properties": {"fill": C(SOFT)}, "selector": eq_selector(role, "Batting first")},
+                       {"properties": {"fill": C(OCHRE)}, "selector": eq_selector(role, "Chasing")}]},
+        sort=(col("Franchise", "latest_name"), "Ascending")), filters=active)
+    p.add("rule_row3", 24, 460, 1232, 1, rule_box(RULE))
+    p.add("death_rr", 24, 468, 400, 224, chart(
+        "clusteredBarChart",
+        {"Category": [proj(col("Franchise", "latest_name"), name="Franchise", active=True)],
+         "Y": [proj(mea("InningsPhase", "Death Run Rate"), name="Death-overs run rate")]},
+        "Who finishes hardest",
+        "Batting run rate in overs 16-20, current franchises.",
+        {**axes(cat_type=None, value_show=False, grid=False), **labels(size=8), **single_colour(DEATH)},
+        sort=(mea("InningsPhase", "Death Run Rate"), "Descending")), filters=active)
+    p.add("pp_rr", 444, 468, 400, 224, chart(
+        "clusteredBarChart",
+        {"Category": [proj(col("Franchise", "latest_name"), name="Franchise", active=True)],
+         "Y": [proj(mea("InningsPhase", "PP Run Rate"), name="Powerplay run rate")]},
+        "Who starts fastest",
+        "Batting run rate in overs 1-6, current franchises.",
+        {**axes(cat_type=None, value_show=False, grid=False), **labels(size=8), **single_colour(PP)},
+        sort=(mea("InningsPhase", "PP Run Rate"), "Descending")), filters=active)
+    p.add("pom", 864, 468, 392, 224, chart(
+        "clusteredBarChart",
+        {"Category": [proj(col("Matches", "player_of_match"), name="Player", active=True)],
+         "Y": [proj(mea("Matches", "Match Count"), name="Player of the match awards")]},
+        "Most player-of-the-match awards",
+        "AB de Villiers leads with 25. Scroll for more.",
+        {**axes(cat_type=None, value_show=False, grid=False), **labels(size=8), **single_colour(SOFT)},
+        sort=(mea("Matches", "Match Count"), "Descending")))
+    return p
+
+
 # ============================================================== report files
 def write_report(pages: list[Page]) -> None:
     rp = OUT / f"{NAME}.Report"
@@ -931,7 +996,7 @@ def main() -> None:
     OUT.mkdir(parents=True)
     tables = load_tables()
     write_model(tables)
-    write_report([page_league(), page_players(), page_model()])
+    write_report([page_league(), page_players(), page_teams()])
     (OUT / f"{NAME}.pbip").write_text(encoding="utf-8", data=json.dumps({
         "$schema": f"{SCHEMA}/pbip/pbipProperties/1.0.0/schema.json",
         "version": "1.0", "artifacts": [{"report": {"path": f"{NAME}.Report"}}],
